@@ -30,9 +30,11 @@ git push origin 브랜치명
 
 description에 설명 추가  
 
-create pull request 클릭  
+create pull request 클릭
+
 --
 *병합시에는 squash merge로 한다  
+
 ---
 각자 로컬에서 충분히 테스트(유닛테스트 및 통합테스트) 후 Merge/Rebase 진행  
 Merge/Rebase 후에는 main 브랜치가 정상 구동되는지 꼭 확인  
