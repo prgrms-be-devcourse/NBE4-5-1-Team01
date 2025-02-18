@@ -2,8 +2,8 @@
 프로그래머스 백엔드 데브코스 4기 5회차 1차 1팀 프로젝트  
 
 -칸반 보드 활용  
-Jira에서 태스크를 관리  
-담당자와 진행 상태(To Do, In Progress, Done)를 명확히 표시  
+태스크에서 자신이 맡은 이슈를 생성
+담당자와 진행 상태(To Do, In Progress, Done)를 명확히 표시
 
 -GitHub Flow  
 기본적으로 main 브랜치를 기준으로 진행  
