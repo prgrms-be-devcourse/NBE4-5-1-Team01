@@ -22,6 +22,7 @@ public class AdminAuthController {
     private final PasswordEncoder passwordEncoder;
     private final AuthTokenService authTokenService;
 
+
     @Value("${admin.password}")
     private String encodedPassword;
 
@@ -46,8 +47,7 @@ public class AdminAuthController {
             );
         }
 
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of(
                         "status", 401,
                         "msg", "비밀번호가 틀렸습니다."
