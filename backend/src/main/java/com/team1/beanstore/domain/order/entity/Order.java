@@ -35,7 +35,21 @@ public class Order {
     @Column(name = "order_status", nullable = false)
     private OrderStatus orderStatus;
 
+    @Column(name = "total_price", nullable = false)
+    private int totalPrice;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<OrderItem> orderItems = new ArrayList<>();
+
+    public void addOrderItems(List<OrderItem> orderItems) {
+        this.orderItems.addAll(orderItems);
+        this.totalPrice = calculateTotalPrice();
+    }
+
+    private int calculateTotalPrice() {
+        return this.orderItems.stream()
+                .mapToInt(OrderItem::getTotalPrice)
+                .sum();
+    }
 }

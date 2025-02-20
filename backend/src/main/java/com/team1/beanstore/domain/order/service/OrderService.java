@@ -22,21 +22,13 @@ public class OrderService {
 
     @Transactional
     public void createOrder(String email, String address, String zipCode, Map<Long, Integer> productQuantities) {
-        int maxRetries = 3;
-
-        for (int i = 0; i < maxRetries; i++) {
-            try {
-                List<OrderItem> orderItems = orderItemService.createOrderItems(productQuantities);
-                Order order = orderMapper.toOrder(email, address, zipCode, orderItems);
-                orderRepository.save(order);
-                return;
-
-            } catch (OptimisticLockException e) {
-                if (i == maxRetries - 1) {
-                    throw new IllegalStateException("주문량이 많습니다 추후에 시도해주세요");
-                }
-            }
+        try {
+            Order order = orderMapper.toOrder(email, address, zipCode);
+            List<OrderItem> orderItems = orderItemService.createOrderItems(order, productQuantities);
+            order.addOrderItems(orderItems);
+            orderRepository.save(order);
+        } catch (OptimisticLockException e) {
+            throw new IllegalStateException("동시 주문이 많아 처리가 실패했습니다. 다시 시도해주세요.");
         }
-
     }
 }

@@ -14,8 +14,9 @@ import java.util.List;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    @Query("SELECT p FROM Product p WHERE p.id IN :ids")
+    @Query("SELECT p FROM Product p WHERE p.id IN :ids AND p.deletedAt IS NULL")
     List<Product> findByIds(@Param("ids") List<Long> ids);
 
-    Page<Product> findByCategory(ProductCategory category, Pageable pageable);
+    @Query("SELECT p FROM Product p WHERE p.category = :category AND p.deletedAt IS NULL")
+    Page<Product> findByCategory(@Param("category") ProductCategory category, Pageable pageable);
 }

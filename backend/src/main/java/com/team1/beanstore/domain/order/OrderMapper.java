@@ -7,27 +7,27 @@ import com.team1.beanstore.domain.product.entity.Product;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Component
 public class OrderMapper {
 
-    public OrderItem toOrderItem(Product product, int quantity) {
+    public OrderItem toOrderItem(Order order, Product product, int quantity) {
         return OrderItem.builder()
+                .order(order)
                 .product(product)
                 .quantity(quantity)
                 .totalPrice(product.getPrice() * quantity)
                 .build();
     }
 
-    public Order toOrder(String email, String address, String zipCode, List<OrderItem> orderItems) {
+    public Order toOrder(String email, String address, String zipCode) {
         return Order.builder()
                 .email(email)
                 .address(address)
                 .zipCode(zipCode)
                 .orderStatus(OrderStatus.PENDING)
                 .orderDate(LocalDateTime.now())
-                .orderItems(orderItems)
+                .totalPrice(0)
                 .build();
     }
 }
