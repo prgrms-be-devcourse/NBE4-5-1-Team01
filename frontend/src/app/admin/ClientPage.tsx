@@ -22,8 +22,7 @@ export default function ClientPage({
   page?: number;
 }) {
   const router = useRouter();
-
-  // empty rsData 처리
+ // empty rsData 처리
   const { items = [] } = rsData?.data ?? {};
 
   // 관리자 페이지 이동처리
