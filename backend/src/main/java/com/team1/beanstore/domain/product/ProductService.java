@@ -2,6 +2,7 @@ package com.team1.beanstore.domain.product;
 
 import com.team1.beanstore.domain.product.entity.Product;
 import com.team1.beanstore.domain.product.entity.ProductCategory;
+import com.team1.beanstore.global.exception.ServiceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -60,7 +61,7 @@ public class ProductService {
     }
 
 
-    public Long modifyItem(
+    public Map<String, Long> modifyItem(
             long id,
             String name,
             int price,
@@ -70,9 +71,9 @@ public class ProductService {
             ProductCategory category
     ) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("상품이 존재하지 않습니다."));
+                .orElseThrow(() -> new ServiceException("404-1", "존재하지 않는 상품"));
         product.updateProduct( name, price, image_url, inventory, description, category);
-        return id;
+        return Map.of("id", id);
     }
 
 
@@ -87,8 +88,9 @@ public class ProductService {
         PageRequest pageRequest = PageRequest.of(page - 1, pageSize, Sort.by(direction, "name"));
 
         String likeKeyword = "%" + keyword + "%";
-
-        if (SearchKeywordType.name == keywordType) {
+        if (SearchKeywordType.id == keywordType) {
+            return productRepository.findAll(pageRequest).map(ProductResponse::from);
+        } else if (SearchKeywordType.name == keywordType) {
             return productRepository.findByNameLike(likeKeyword, pageRequest).map(ProductResponse::from);
         } else if (SearchKeywordType.description == keywordType) {
             return productRepository.findByDescriptionLike(likeKeyword, pageRequest).map(ProductResponse::from);
@@ -98,7 +100,7 @@ public class ProductService {
         try {
             categoryEnum = ProductCategory.valueOf(keyword.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("잘못된 카테고리입니다: " + keyword);
+            throw new ServiceException("400-1", "잘못된 검색타입: " + keyword);
         }
 
         return productRepository.findByCategory(categoryEnum, pageRequest).map(ProductResponse::from);
@@ -106,19 +108,21 @@ public class ProductService {
 
 
     public ProductResponse getItem(Long id) {
-        Product product = productRepository.findById(id).orElseThrow(IllegalArgumentException::new);
-        //프로덕트가 안 존재한다면
-        if (product == null) {
-            throw new IllegalArgumentException("상품이 존재하지 않습니다.");
-        }
+        Product product = productRepository.findById(id).orElseThrow(
+                () -> new ServiceException("404-1", "존재하지 않는 글")
+        );
         return ProductResponse.from(product);
     }
 
 
     @Transactional()
-    public Long deleteItem(Long id) {
-        Product product = productRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+    public Map<String, Long> deleteItem(Long id) {
+        Product product = productRepository.findById(id).orElseThrow(
+                () -> new ServiceException("404-1", "존재하지 않는 상품")
+        );
         product.delete();
-        return product.getId();
+        Long deletedId = product.getId();
+        return Map.of("id", deletedId);
+
     }
 }

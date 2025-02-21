@@ -23,5 +23,6 @@ public enum ProductCategory {
             }
         }
         throw new IllegalArgumentException("잘못된 카테고리 값입니다: " + value);
+
     }
 }

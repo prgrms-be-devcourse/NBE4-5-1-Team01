@@ -1,13 +1,14 @@
 package com.team1.beanstore.domain.product;
 
+import com.team1.beanstore.domain.product.entity.Product;
 import com.team1.beanstore.domain.product.entity.ProductCategory;
 import com.team1.beanstore.global.dto.RsData;
+import com.team1.beanstore.global.exception.ServiceException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -27,7 +28,7 @@ public class ProductController {
             @RequestParam(defaultValue = "asc") String sort) {
 
         if (page < 0) {
-            throw new IllegalArgumentException("페이지 번호는 0 이상이어야 합니다.");
+            throw new ServiceException("400-1", "페이지 번호는 0 이상");
         }
 
         Page<ProductResponse> products = productService.getProductsByCategory(category, page, pageSize, sort);
@@ -45,7 +46,7 @@ public class ProductController {
             @RequestParam(defaultValue = "asc") String sort) {
 
         if (page < 0) {
-            throw new IllegalArgumentException("페이지 번호는 0 이상이어야 합니다.");
+            throw new ServiceException("400-1", "페이지 번호는 0 이상");
         }
 
         Page<ProductResponse> products = productService.searchProductsByName(keyword, page, pageSize, sort);
@@ -55,28 +56,36 @@ public class ProductController {
                 products);
     }
 
-
     @GetMapping("/admin/items")
-    public Page<ProductResponse> getItems(
-            @RequestParam(defaultValue = "0") int page,
+    public RsData<Page<ProductResponse>> getItems(
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(defaultValue = "name") SearchKeywordType keywordType,
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "asc") String sort
     ) {
-        return productService.getListedItems(page, pageSize, keywordType, keyword, sort);
+
+        Page<ProductResponse> products = productService.getListedItems(page, pageSize, keywordType, keyword, sort);
+        return new RsData<>(
+                "200-1",
+                "상품 목록 조회 성공",
+                products);
     }
 
     @GetMapping("/admin/item/{id}")
-    public ProductResponse getItem(@RequestParam Long id) {
-        return productService.getItem(id);
+    public RsData<ProductResponse> getItem(@PathVariable Long id) {
+        ProductResponse product = productService.getItem(id);
+        return new RsData<>(
+                "200-1",
+                "상품 조회 성공",
+                product);
     }
 
 
     record ItemReqBody(
             @NotBlank
             String name,
-            @Min(0)
+            @Min(1)
             int price,
             @NotBlank
             String imageUrl,
@@ -88,38 +97,55 @@ public class ProductController {
     ) {}
 
     @PostMapping("/admin/item")
-    public ResponseEntity<Map<String, Long>> createItem(
+    public RsData<Map<String, Long>> createItem(
             @RequestBody @Valid ItemReqBody reqBody
     ) {
         ProductCategory categoryEnum;
         try {
             categoryEnum = ProductCategory.from(reqBody.category.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("잘못된 카테고리 값입니다: " + reqBody.category);
+            throw new ServiceException("400-1", "잘못된 카테고리 값입니다: " + reqBody.category);
         }
 
         Map<String, Long> response =  productService.createItem(reqBody.name, reqBody.price, reqBody.imageUrl, reqBody.inventory, reqBody.description, categoryEnum);
-        return ResponseEntity.ok(response);
+
+
+
+        return new RsData<>(
+                "201-1",
+                "상품 등록 성공",
+                response);
     }
 
     @PatchMapping("/admin/item/{id}")
-    public Long modifyItem(
-            @RequestParam Long id,
-            @RequestBody String name,
-            @RequestBody int price,
-            @RequestBody String image_url,
-            @RequestBody int inventory,
-            @RequestBody String description,
-            @RequestBody ProductCategory category
+    public RsData<Map<String, Long>> modifyItem(
+            @PathVariable Long id,
+            @RequestBody ItemReqBody reqBody
     ) {
-        return productService.modifyItem(id, name, price, image_url, inventory, description, category);
+        ProductCategory categoryEnum;
+        try {
+            categoryEnum = ProductCategory.from(reqBody.category.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new ServiceException("400-1", "잘못된 카테고리 값입니다: " + reqBody.category);
+        }
+
+        Map<String, Long> response =  productService.modifyItem(id, reqBody.name, reqBody.price, reqBody.imageUrl, reqBody.inventory, reqBody.description, categoryEnum);
+        return new RsData<>(
+                "200-1",
+                "%s번 상품 수정 성공".formatted(id),
+                response);
     }
 
 
     @DeleteMapping("/admin/delete/{id}")
-    public Long deleteItem(
-            @RequestParam Long id
+    public RsData<Map<String, Long>> deleteItem(
+            @PathVariable Long id
     ) {
-        return productService.deleteItem(id);
+        Map<String, Long> response =  productService.deleteItem(id);
+
+        return new RsData<>(
+                "200-1",
+                "%d번 상품 삭제 성공".formatted(id),
+                response);
     }
 }
