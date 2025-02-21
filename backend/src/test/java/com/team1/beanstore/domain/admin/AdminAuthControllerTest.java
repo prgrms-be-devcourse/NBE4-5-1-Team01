@@ -66,13 +66,13 @@ public class AdminAuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(handler().handlerType(AdminAuthController.class))
                 .andExpect(handler().methodName("login"))
-                .andExpect(jsonPath("$.status").value("200"))
+                .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("로그인 성공"))
-                .andExpect(jsonPath("$.token").exists());
+                .andExpect(jsonPath("$.data").exists());
 
         String jsonResponse = resultActions.andReturn().getResponse().getContentAsString();
         Map<String, Object> responseMap = objectMapper.readValue(jsonResponse, Map.class);
-        String token = (String) responseMap.get("token");
+        String token = (String) responseMap.get("data");
 
         assertThat(token).isNotNull();
         assertThat(token.split("\\.")).hasSize(3);
@@ -106,7 +106,7 @@ public class AdminAuthControllerTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(handler().handlerType(AdminAuthController.class))
                 .andExpect(handler().methodName("login"))
-                .andExpect(jsonPath("$.status").value("401"))
+                .andExpect(jsonPath("$.code").value("401-1"))
                 .andExpect(jsonPath("$.msg").value("비밀번호가 틀렸습니다."));
         ;
     }
