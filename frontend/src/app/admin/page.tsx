@@ -23,15 +23,17 @@ export default async function Page({
   const myCookie = await cookies();
   const { isLogin } = parseAccessToken(myCookie.get("accessToken"));
 
+  //권한 없을 시 관리자 로그인 페이지로 이동
   if (!isLogin) {
-    return <div>관리자 권한 필요</div>;
+    <ClientPage isLogin={isLogin} />;
   }
 
-  //가짜 rsdata DB연동후 삭제 필요
+  //가짜 rsdata, DB연동후 삭제 필요
   const rsData = mockRsData;
 
   return (
     <ClientPage
+      isLogin={isLogin}
       rsData={rsData}
       pageSize={pageSize}
       keyword={keyword}

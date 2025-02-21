@@ -18,7 +18,7 @@ export default async function Page({
     page = 1,
   } = await searchParams;
 
-  //가짜 rsdata DB연동후 삭제 필요
+  //가짜 rsdata, DB연동후 삭제 필요
   const rsData = mockRsData;
 
   //   const response = await client.GET("/items", {

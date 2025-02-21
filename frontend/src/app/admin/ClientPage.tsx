@@ -8,12 +8,14 @@ import { paging } from "@/global/paging";
 import Link from "next/link";
 
 export default function ClientPage({
+  isLogin,
   rsData = { data: { totalPages: 0, items: [] } },
   keywordType,
   keyword,
   pageSize,
   page,
 }: {
+  isLogin: boolean;
   rsData?: { data: { totalPages: number; items: any[] } };
   keywordType?: "name" | "description";
   keyword?: string;
@@ -32,6 +34,13 @@ export default function ClientPage({
   const currentPage = Number(searchParams.get("page")) || page || 1;
 
   const { totalPages, items } = rsData?.data || { totalPages: 0, items: [] };
+
+  // 관리자 페이지 이동처리
+  // useEffect(() => {
+  //   if (!isLogin) {
+  //     router.replace("/admin/login");
+  //   }
+  // }, [isLogin, router]);
 
   // 페이징 처리
   const { currentPageItems, visiblePages, handlePageChange } = paging(
@@ -154,6 +163,9 @@ export default function ClientPage({
                   <h3 className="text-lg font-semibold">{item.name}</h3>
                   <p className="text-sm text-gray-500">
                     상품 ID: {item.itemId}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    상품 정보: {`${item.description}`}
                   </p>
                   <p className="text-sm text-gray-500">
                     공개 여부: {`${item.published}`}

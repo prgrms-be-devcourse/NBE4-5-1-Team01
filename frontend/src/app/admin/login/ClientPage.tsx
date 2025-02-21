@@ -30,7 +30,7 @@ export default function ClinetPage() {
 
   return (
     <>
-      <div>로그인 페이지</div>
+      <div>관리자 로그인</div>
 
       <form onSubmit={login} className="flex flex-col w-1/4 gap-3">
         <input
