@@ -79,8 +79,10 @@ class ProductControllerTest {
                         .param("pageSize", "10")
                         .param("sort", "asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").isArray())
-                .andExpect(jsonPath("$.content[0].name").value("에티오피아 예가체프"));
+                .andExpect(jsonPath("$.code").value("200-1"))
+                .andExpect(jsonPath("$.msg").value("상품 조회 성공"))
+                .andExpect(jsonPath("$.data.content").isArray())
+                .andExpect(jsonPath("$.data.content[0].name").value("에티오피아 예가체프"));
     }
 
     @Test
@@ -102,7 +104,9 @@ class ProductControllerTest {
                         .param("pageSize", "2")
                         .param("sort", "asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content.length()").value(2)); // 2개까지만 가져오는지 확인
+                .andExpect(jsonPath("$.code").value("200-1"))
+                .andExpect(jsonPath("$.msg").value("상품 조회 성공"))
+                .andExpect(jsonPath("$.data.content.length()").value(2)); // 2개까지만 가져오는지 확인
     }
 
     @Test
@@ -114,9 +118,10 @@ class ProductControllerTest {
                         .param("pageSize", "10")
                         .param("sort", "desc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].name").value("과테말라 안티구아"));
+                .andExpect(jsonPath("$.code").value("200-1"))
+                .andExpect(jsonPath("$.msg").value("상품 조회 성공"))
+                .andExpect(jsonPath("$.data.content[0].name").value("과테말라 안티구아"));
     }
-
 
     @Test
     @DisplayName("잘못된 카테고리 요청 시 400 Bad Request 반환")
@@ -129,7 +134,6 @@ class ProductControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-
     @Test
     @DisplayName("페이지 크기 생략 시 기본값 적용")
     void getProductsByCategory_DefaultPageSize() throws Exception {
@@ -138,6 +142,8 @@ class ProductControllerTest {
                         .param("page", "0")
                         .param("sort", "asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").isArray());
+                .andExpect(jsonPath("$.code").value("200-1"))
+                .andExpect(jsonPath("$.msg").value("상품 조회 성공"))
+                .andExpect(jsonPath("$.data.content").isArray());
     }
 }

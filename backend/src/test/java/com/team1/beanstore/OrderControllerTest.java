@@ -80,11 +80,11 @@ class OrderControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value(200))
+                .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("주문 성공"))
-                .andExpect(jsonPath("$.order.orderId").isNumber())
-                .andExpect(jsonPath("$.order.orderStatus").value("PENDING"))
-                .andExpect(jsonPath("$.order.totalPrice").isNumber());
+                .andExpect(jsonPath("$.data.orderId").isNumber())
+                .andExpect(jsonPath("$.data.orderStatus").value("PENDING"))
+                .andExpect(jsonPath("$.data.totalPrice").isNumber());
     }
 
     @Test
