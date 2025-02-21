@@ -1,6 +1,6 @@
 package com.team1.beanstore.domain.admin;
 
-import com.team1.beanstore.domain.order.OrderResponse;
+import com.team1.beanstore.domain.order.dto.OrderResponse;
 import com.team1.beanstore.domain.order.entity.OrderStatus;
 import com.team1.beanstore.domain.order.service.OrderService;
 import com.team1.beanstore.domain.product.ProductRepository;

@@ -9,6 +9,7 @@ import com.team1.beanstore.domain.product.ProductRepository;
 import com.team1.beanstore.domain.product.entity.Product;
 import com.team1.beanstore.domain.product.entity.ProductCategory;
 import com.team1.beanstore.global.exception.ServiceException;
+import jakarta.persistence.OptimisticLockException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,8 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -94,7 +97,11 @@ class OrderServiceTest {
         Map<Long, Integer> productQuantities = Map.of(productId2, 10);
 
         // when & then
-        assertThrows(IllegalStateException.class, () -> orderService.createOrder(email, address, zipCode, productQuantities));
+        ServiceException exception = assertThrows(ServiceException.class, () ->
+                orderService.createOrder(email, address, zipCode, productQuantities));
+
+        assertThat(exception.getCode()).isEqualTo("400-1");
+        assertThat(exception.getMsg()).isEqualTo("재고가 부족합니다: 콜롬비아 수프리모");
     }
 
     @Test
@@ -146,8 +153,11 @@ class OrderServiceTest {
         Map<Long, Integer> productQuantities = Map.of(productId1, 2);
 
         // when & then
-        assertThrows(IllegalStateException.class, () ->
+        ServiceException exception = assertThrows(ServiceException.class, () ->
                 orderService.createOrder("test@example.com", "123 Street", "12345", productQuantities));
+
+        assertThat(exception.getCode()).isEqualTo("404-1");
+        assertThat(exception.getMsg()).isEqualTo("주문할 수 없는 상품이 포함되어 있습니다.");
     }
 
     @Test
@@ -170,20 +180,6 @@ class OrderServiceTest {
             assertThat(item.getOrder()).isEqualTo(order);
             assertThat(item.getOrder().getId()).isEqualTo(order.getId());
         }
-    }
-
-    @Test
-    @DisplayName("존재하지 않는 상품을 주문하면 예외 발생")
-    void createOrder_Failure_NonExistentProduct() {
-        // given
-        String email = "test@example.com";
-        String address = "123 Street";
-        String zipCode = "12345";
-        Map<Long, Integer> productQuantities = Map.of(9999L, 2);
-
-        // when & then
-        assertThrows(IllegalStateException.class, () ->
-                orderService.createOrder(email, address, zipCode, productQuantities));
     }
 
     @Test

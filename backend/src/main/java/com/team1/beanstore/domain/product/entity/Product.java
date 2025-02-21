@@ -1,5 +1,6 @@
 package com.team1.beanstore.domain.product.entity;
 
+import com.team1.beanstore.global.exception.ServiceException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -47,7 +48,7 @@ public class Product {
 
     public void decreaseInventory(int quantity) {
         if (this.inventory < quantity) {
-            throw new IllegalStateException("재고가 부족합니다.");
+            throw new ServiceException("400-1", "재고가 부족합니다: " + this.name);
         }
         this.inventory -= quantity;
     }
