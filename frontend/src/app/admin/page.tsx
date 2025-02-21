@@ -16,7 +16,7 @@ export default async function Page({
   const {
     keywordType = "name",
     keyword = "",
-    pageSize = 10,
+    pageSize = 7,
     page = 1,
   } = await searchParams;
 
