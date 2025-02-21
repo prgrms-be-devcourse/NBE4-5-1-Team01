@@ -20,6 +20,8 @@ import java.util.Map;
 public class AdminAuthController {
 
     private final PasswordEncoder passwordEncoder;
+    private final AuthTokenService authTokenService;
+
 
     @Value("${admin.password}")
     private String encodedPassword;
@@ -34,11 +36,13 @@ public class AdminAuthController {
         // 비밀번호가 맞으면 토큰 발급
         if (passwordEncoder.matches(password, encodedPassword)) {
             // JWT 발급
+            String jwtToken = authTokenService.genToken();
 
             return ResponseEntity.ok(
                     Map.of(
                             "status", 200,
-                            "msg", "로그인 성공"
+                            "msg", "로그인 성공",
+                            "token", jwtToken
                     )
             );
         }
