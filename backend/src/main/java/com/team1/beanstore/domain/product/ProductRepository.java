@@ -21,5 +21,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Page<Product> findByCategory(@Param("category") ProductCategory category, Pageable pageable);
 
     @Query("SELECT p FROM Product p WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) AND p.deletedAt IS NULL")
-    Page<Product> searchByName(@Param("name") String keyword, Pageable pageable);
+    Page<Product> searchByName(@Param("keyword") String keyword, Pageable pageable);
 }

@@ -2,16 +2,19 @@ package com.team1.beanstore.domain.order;
 
 import com.team1.beanstore.domain.order.entity.Order;
 import com.team1.beanstore.domain.order.entity.OrderItem;
+import com.team1.beanstore.domain.order.entity.OrderStatus;
 import com.team1.beanstore.domain.order.repository.OrderRepository;
 import com.team1.beanstore.domain.order.service.OrderService;
 import com.team1.beanstore.domain.product.ProductRepository;
 import com.team1.beanstore.domain.product.entity.Product;
 import com.team1.beanstore.domain.product.entity.ProductCategory;
+import com.team1.beanstore.global.exception.ServiceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -198,5 +201,172 @@ class OrderServiceTest {
         // then
         Order order = orderRepository.findAll().getFirst();
         assertThat(order.getTotalPrice()).isGreaterThan(0);
+    }
+
+    private void setUpOrder() {
+        String email1 = "test1@example.com";
+        String address1 = "aaa";
+        String zipCode1 = "aaa";
+        Map<Long, Integer> productQuantities1 = Map.of(productId1, 2, productId2, 1);
+        orderService.createOrder(email1, address1, zipCode1, productQuantities1);
+
+        String email2 = "test2@example.com";
+        String address2 = "bbb";
+        String zipCode2 = "bbb";
+        Map<Long, Integer> productQuantities2 = Map.of(productId1, 1, productId2, 2);
+        orderService.createOrder(email2, address2, zipCode2, productQuantities2);
+    }
+
+    @Test
+    @DisplayName("주문 전체 조회 - 성공")
+    void getOrders1() {
+        setUpOrder();
+
+        int page = 1;
+        int pageSize = 10;
+        String keyword = "";
+        String sort = "asc";
+
+        Page<OrderResponseWithDetail> pageOrder = orderService.getOrders(page, pageSize, keyword, sort);
+
+        assertThat(pageOrder.getContent().size()).isEqualTo(2);
+        assertThat(pageOrder.getContent().getFirst().getEmail()).isEqualTo("test1@example.com");
+    }
+
+    @Test
+    @DisplayName("주문 전체 조회 - 성공 - 페이징")
+    void getOrders2() {
+        setUpOrder();
+
+        int page = 1;
+        int pageSize = 1;
+        String keyword = "";
+        String sort = "asc";
+
+        Page<OrderResponseWithDetail> pageOrder = orderService.getOrders(page, pageSize, keyword, sort);
+
+        assertThat(pageOrder.getContent().size()).isEqualTo(1);
+        assertThat(pageOrder.getContent().getFirst().getEmail()).isEqualTo("test1@example.com");
+    }
+
+    @Test
+    @DisplayName("주문 전체 조회 - 성공 - 검색")
+    void getOrders3() {
+        setUpOrder();
+
+        int page = 1;
+        int pageSize = 10;
+        String keyword = "test1";
+        String sort = "asc";
+
+        Page<OrderResponseWithDetail> pageOrder = orderService.getOrders(page, pageSize, keyword, sort);
+
+        assertThat(pageOrder.getContent().size()).isEqualTo(1);
+        assertThat(pageOrder.getContent().getFirst().getEmail()).isEqualTo("test1@example.com");
+    }
+
+    @Test
+    @DisplayName("주문 전체 조회 - 성공 - 정렬")
+    void getOrders4() {
+        setUpOrder();
+
+        int page = 1;
+        int pageSize = 10;
+        String keyword = "";
+        String sort = "desc";
+
+        Page<OrderResponseWithDetail> pageOrder = orderService.getOrders(page, pageSize, "", sort);
+
+        assertThat(pageOrder.getContent().size()).isEqualTo(2);
+        assertThat(pageOrder.getContent().getFirst().getEmail()).isEqualTo("test2@example.com");
+    }
+
+    @Test
+    @DisplayName("주문 상세 조회 테스트 - 성공")
+    void getOrder1() {
+        setUpOrder();
+
+        int page = 1;
+        int pageSize = 10;
+        String keyword = "";
+        String sort = "desc";
+
+        long id = orderRepository.findAll().getFirst().getId();
+
+        OrderResponseWithDetail orderResponse = orderService.getOrder(id);
+        assertThat(orderResponse.getEmail()).isEqualTo("test1@example.com");
+        assertThat(orderResponse.getZipCode()).isEqualTo("aaa");
+        assertThat(orderResponse.getTotalPrice()).isEqualTo(37000);
+    }
+
+    @Test
+    @DisplayName("주문 상세 조회 테스트 - 실패 - 없는 주문 조회")
+    void getOrder2() {
+        setUpOrder();
+
+        long id = 1000000;
+        String email = "test@example.com";
+        String address = "123 Street";
+        String zipCode = "12345";
+        Map<Long, Integer> productQuantities = Map.of(productId1, 2, productId2, 1);
+
+        orderService.createOrder(email, address, zipCode, productQuantities);
+
+        assertThrows(ServiceException.class,
+                () -> orderService.getOrder(id));
+    }
+
+    @Test
+    @DisplayName("주문 수정 테스트 - 성공")
+    void modifyOrder1() {
+        setUpOrder();
+
+        long id = orderRepository.findAll().getFirst().getId();
+        OrderStatus orderStatus = OrderStatus.COMPLETED;
+
+        Order order = orderRepository.findById(id).get();
+        assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PENDING);
+
+        orderService.modify(id, orderStatus);
+
+        Order modifiedOrder = orderRepository.findById(id).get();
+        assertThat(modifiedOrder.getOrderStatus()).isEqualTo(OrderStatus.COMPLETED);
+    }
+
+    @Test
+    @DisplayName("주문 수정 테스트 - 실패 - 없는 주문 수정")
+    void modifyOrder2() {
+        setUpOrder();
+
+        long id = 100000;
+        OrderStatus orderStatus = OrderStatus.COMPLETED;
+
+        assertThrows(ServiceException.class,
+                () -> orderService.modify(id, orderStatus));
+    }
+
+    @Test
+    @DisplayName("주문 삭제 테스트 - 성공")
+    void deleteOrder1() {
+        setUpOrder();
+
+        long id = orderRepository.findAll().getFirst().getId();
+
+        orderService.delete(id);
+
+        Order order = orderRepository.findAll().getFirst();
+
+        assertThat(order.getId()).isNotEqualTo(id);
+    }
+
+    @Test
+    @DisplayName("주문 삭제 테스트 - 실패 - 없는 주문 삭제")
+    void deleteOrder2() {
+        setUpOrder();
+
+        long id = 100000;
+
+        assertThrows(ServiceException.class,
+                () -> orderService.delete(id));
     }
 }
