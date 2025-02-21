@@ -3,16 +3,15 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useRouter, useSearchParams } from "next/navigation";
-import { paging } from "@/global/paging";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function ClientPage({
   rsData,
-  keywordType = "name",
-  keyword = "",
-  pageSize = 10,
-  page = 1,
+  keywordType,
+  keyword,
+  pageSize,
+  page,
 }: {
   rsData: { data: { totalPages: number; items: any[] } };
   keywordType?: "name" | "description";
@@ -21,30 +20,57 @@ export default function ClientPage({
   page?: number;
 }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  // empty rsData 처리
+  const { items = [] } = rsData?.data ?? {};
 
   // 현재 URL에서 검색 및 페이지네이션 정보를 가져옴
-  const currentKeywordType =
-    searchParams.get("keywordType") || keywordType || "name";
-  const currentKeyword = searchParams.get("keyword") || keyword || "";
-  const currentPageSize =
-    Number(searchParams.get("pageSize")) || pageSize || 10;
-  const currentPage = Number(searchParams.get("page")) || page || 1;
+  const [currentKeyword, setCurrentKeyword] = useState(keyword || "");
+  const [currentKeywordType, setCurrentKeywordType] = useState<
+    "name" | "description"
+  >(keywordType || "name");
+  const [currentPageSize] = useState(pageSize || 10);
+  const [currentPage, setCurrentPage] = useState(page || 1);
 
-  const { totalPages, items } = rsData?.data || { totalPages: 0, items: [] };
+  // 검색 실행 시 필터링된 상품을 저장
+  const [filteredItems, setFilteredItems] = useState(
+    items.filter((item) => item.published)
+  );
+  // 검색 핸들러
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setCurrentPage(1); // 검색 시 첫 페이지로 리셋
 
-  // 페이징 처리
-  const { currentPageItems, visiblePages, handlePageChange } = paging(
-    items,
-    currentPageSize,
-    currentPage
+    // 필터링된 결과 업데이트
+    const newFilteredItems = items
+      .filter((item) => item.published) // 공개된 상품만 유지
+      .filter((item) =>
+        item[currentKeywordType]
+          .toLowerCase()
+          .includes(currentKeyword.toLowerCase())
+      );
+
+    setFilteredItems(newFilteredItems);
+
+    // URL 업데이트
+    router.push(
+      `/store?keywordType=${currentKeywordType}&keyword=${currentKeyword}&pageSize=${currentPageSize}&page=1`
+    );
+  };
+
+  // 페이징 연산
+  const totalPages = Math.ceil(filteredItems.length / currentPageSize);
+  const currentPageItems = filteredItems.slice(
+    (currentPage - 1) * currentPageSize,
+    currentPage * currentPageSize
   );
 
-  // 빈 페이지 제거
-  const validPages = visiblePages.filter((pageNum) => {
-    const startIdx = (pageNum - 1) * currentPageSize;
-    return items.slice(startIdx, startIdx + currentPageSize).length > 0;
-  });
+  //  페이징 핸들러
+  const handlePageChange = (nowPage: number) => {
+    setCurrentPage(nowPage);
+    router.push(
+      `/store?keywordType=${currentKeywordType}&keyword=${currentKeyword}&pageSize=${currentPageSize}&page=${nowPage}`
+    );
+  };
 
   // 장바구니 상태 관리
   const [cart, setCart] = useState<
@@ -108,25 +134,14 @@ export default function ClientPage({
         <h1 className="text-2xl font-bold mb-4">상품 목록</h1>
 
         {/* 검색 필터 */}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target as HTMLFormElement);
-            const searchKeyword = formData.get("keyword") as string;
-            const searchKeywordType = formData.get("keywordType") as string;
-            const page = 1;
-            const pageSize = formData.get("pageSize") as string;
-
-            router.push(
-              `/store?keywordType=${searchKeywordType}&keyword=${searchKeyword}&pageSize=${pageSize}&page=${page}`
-            );
-          }}
-          className="mb-5"
-        >
+        <form onSubmit={handleSearchSubmit} className="mb-5">
           <div className="flex gap-3 items-center">
             <select
               name="keywordType"
-              defaultValue={keywordType}
+              value={currentKeywordType}
+              onChange={(e) =>
+                setCurrentKeywordType(e.target.value as "name" | "description")
+              }
               className="border p-2 rounded"
             >
               <option value="name">상품 이름</option>
@@ -136,10 +151,11 @@ export default function ClientPage({
               type="text"
               placeholder="검색어 입력"
               name="keyword"
-              defaultValue={keyword}
+              value={currentKeyword}
+              onChange={(e) => setCurrentKeyword(e.target.value)}
               className="w-[200px]"
             />
-            <Button>검색</Button>
+            <Button type="submit">검색</Button>
           </div>
         </form>
 
@@ -175,17 +191,20 @@ export default function ClientPage({
 
         {/* 페이징 */}
         <div className="flex justify-center mt-4 space-x-2">
-          {validPages.map((pageNum) => (
-            <Link
-              key={pageNum}
-              href={`/store?keywordType=${currentKeywordType}&keyword=${currentKeyword}&pageSize=${currentPageSize}&page=${pageNum}`}
-              className={`px-2 py-1 transition-colors duration-300 ${
-                pageNum == currentPage ? `text-red-500` : `text-blue-500`
-              }`}
-            >
-              {pageNum}
-            </Link>
-          ))}
+          {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+            (pageNum) => (
+              <Link
+                key={pageNum}
+                href="#"
+                onClick={() => handlePageChange(pageNum)}
+                className={`px-2 py-1 transition-colors duration-300 ${
+                  pageNum === currentPage ? "text-red-500" : "text-blue-500"
+                }`}
+              >
+                {pageNum}
+              </Link>
+            )
+          )}
         </div>
       </div>
 
