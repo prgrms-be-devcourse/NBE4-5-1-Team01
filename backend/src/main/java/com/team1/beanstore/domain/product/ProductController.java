@@ -18,6 +18,25 @@ public class ProductController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(defaultValue = "asc") String sort) {
+
+        if (page < 0) {
+            throw new IllegalArgumentException("페이지 번호는 0 이상이어야 합니다.");
+        }
+
         return productService.getProductsByCategory(category, page, pageSize, sort);
+    }
+
+    @GetMapping("/search")
+    public Page<ProductResponse> searchProductsByName(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(defaultValue = "asc") String sort) {
+
+        if (page < 0) {
+            throw new IllegalArgumentException("페이지 번호는 0 이상이어야 합니다.");
+        }
+
+        return productService.searchProductsByName(keyword, page, pageSize, sort);
     }
 }

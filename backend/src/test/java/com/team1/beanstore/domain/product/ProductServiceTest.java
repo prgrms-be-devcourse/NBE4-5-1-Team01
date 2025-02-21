@@ -12,12 +12,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -107,5 +105,92 @@ class ProductServiceTest {
         assertThat(result.getContent())
                 .extracting(ProductResponse::id)
                 .doesNotContain(deletedProductId);
+    }
+
+    @Test
+    @DisplayName("상품 이름으로 검색 성공")
+    void searchProductsByName_Success() {
+        // given
+        int page = 0;
+        int pageSize = 10;
+        String sort = "asc";
+        String searchKeyword = "예가체프";
+
+        // when
+        Page<ProductResponse> result = productService.searchProductsByName(searchKeyword, page, pageSize, sort);
+
+        // then
+        assertThat(result).isNotEmpty();
+        assertThat(result.getContent())
+                .extracting(ProductResponse::id)
+                .contains(productId1)
+                .doesNotContain(productId2);
+
+        assertThat(result.getContent()).allMatch(product -> product.name().contains(searchKeyword));
+    }
+
+    @Test
+    @DisplayName("논리 삭제된 상품은 검색되지 않음")
+    void searchProductsByName_ExcludeDeletedProducts() {
+        // given
+        int page = 0;
+        int pageSize = 10;
+        String sort = "asc";
+        String searchKeyword = "삭제된 상품";
+
+        // when
+        Page<ProductResponse> result = productService.searchProductsByName(searchKeyword, page, pageSize, sort);
+
+        // then
+        assertThat(result.getContent()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 카테고리 조회 시 빈 결과 반환")
+    void getProductsByCategory_NoResults() {
+        // given
+        int page = 0;
+        int pageSize = 10;
+        String sort = "asc";
+
+        // when
+        Page<ProductResponse> result = productService.getProductsByCategory(ProductCategory.TEA, page, pageSize, sort);
+
+        // then
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    @DisplayName("상품 이름 검색 시 부분 문자열 검색 가능")
+    void searchProductsByName_PartialMatch() {
+        // given
+        int page = 0;
+        int pageSize = 10;
+        String sort = "asc";
+        String partialKeyword = "체프";
+
+        // when
+        Page<ProductResponse> result = productService.searchProductsByName(partialKeyword, page, pageSize, sort);
+
+        // then
+        assertThat(result).isNotEmpty();
+        assertThat(result.getContent())
+                .extracting(ProductResponse::name)
+                .anyMatch(name -> name.contains(partialKeyword));
+    }
+
+    @Test
+    @DisplayName("카테고리별 상품 조회 시 페이지네이션이 정상적으로 동작")
+    void getProductsByCategory_Pagination() {
+        // given
+        int page = 0;
+        int pageSize = 1;
+        String sort = "asc";
+
+        // when
+        Page<ProductResponse> result = productService.getProductsByCategory(ProductCategory.HAND_DRIP, page, pageSize, sort);
+
+        // then
+        assertThat(result).hasSize(1);
     }
 }

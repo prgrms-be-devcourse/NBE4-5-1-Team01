@@ -30,5 +30,4 @@ public class OrderItem {
 
     @Column(name = "total_price", nullable = false)
     private int totalPrice;
-
 }

@@ -1,6 +1,7 @@
 package com.team1.beanstore.domain.order;
 
 import com.team1.beanstore.domain.order.entity.Order;
+import com.team1.beanstore.domain.order.entity.OrderItem;
 import com.team1.beanstore.domain.order.repository.OrderRepository;
 import com.team1.beanstore.domain.order.service.OrderService;
 import com.team1.beanstore.domain.product.ProductRepository;
@@ -41,18 +42,18 @@ class OrderServiceTest {
     void setUp() {
         Product product1 = productRepository.saveAndFlush(Product.builder()
                 .name("에티오피아 예가체프")
-                .description("과일 향과 부드러운 산미가 특징인 원두")
+                .description("과일 향과 부드러운 산미가 특징인 원두 먹고싶다")
                 .price(12000)
-                .imageUrl("ethiopia.jpg")
+                .imageUrl("대충 이미지.jpg")
                 .inventory(10)
                 .category(ProductCategory.HAND_DRIP)
                 .build());
 
         Product product2 = productRepository.saveAndFlush(Product.builder()
                 .name("콜롬비아 수프리모")
-                .description("견과류와 초콜릿 향이 감도는 원두")
+                .description("견과류와 초콜릿 향이 감도는 원두 먹고싶다")
                 .price(13000)
-                .imageUrl("colombia.jpg")
+                .imageUrl("멍충 이미지.jpg")
                 .inventory(5)
                 .category(ProductCategory.DECAF)
                 .build());
@@ -87,7 +88,7 @@ class OrderServiceTest {
         String email = "test@example.com";
         String address = "123 Street";
         String zipCode = "12345";
-        Map<Long, Integer> productQuantities = Map.of(productId2, 10); // 재고: 5개인데 10개 주문
+        Map<Long, Integer> productQuantities = Map.of(productId2, 10);
 
         // when & then
         assertThrows(IllegalStateException.class, () -> orderService.createOrder(email, address, zipCode, productQuantities));
@@ -109,8 +110,8 @@ class OrderServiceTest {
         Product product1 = productRepository.findById(productId1).orElseThrow();
         Product product2 = productRepository.findById(productId2).orElseThrow();
 
-        assertThat(product1.getInventory()).isEqualTo(8); // 10 - 2개 주문 후 8개 남음
-        assertThat(product2.getInventory()).isEqualTo(4); // 5 - 1개 주문 후 4개 남음
+        assertThat(product1.getInventory()).isEqualTo(8); // 8개 남음
+        assertThat(product2.getInventory()).isEqualTo(4); // 4개 남음
     }
 
     @Test
@@ -127,7 +128,7 @@ class OrderServiceTest {
 
         // then
         Order order = orderRepository.findAll().getFirst();
-        int expectedTotalPrice = (12000 * 2) + (13000); // 24000 + 13000 = 37000
+        int expectedTotalPrice = (12000 * 2) + (13000);
         assertThat(order.getTotalPrice()).isEqualTo(expectedTotalPrice);
     }
 
@@ -144,5 +145,58 @@ class OrderServiceTest {
         // when & then
         assertThrows(IllegalStateException.class, () ->
                 orderService.createOrder("test@example.com", "123 Street", "12345", productQuantities));
+    }
+
+    @Test
+    @DisplayName("주문 생성 후 OrderItem 의 orderId가 정상적으로 할당되는지 검증")
+    void createOrder_AssignOrderIdToOrderItems() {
+        // given
+        String email = "test@example.com";
+        String address = "123 Street";
+        String zipCode = "12345";
+        Map<Long, Integer> productQuantities = Map.of(productId1, 2, productId2, 1);
+
+        // when
+        orderService.createOrder(email, address, zipCode, productQuantities);
+
+        // then
+        Order order = orderRepository.findAll().getFirst();
+        assertThat(order.getOrderItems()).isNotEmpty();
+
+        for (OrderItem item : order.getOrderItems()) {
+            assertThat(item.getOrder()).isEqualTo(order);
+            assertThat(item.getOrder().getId()).isEqualTo(order.getId());
+        }
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 상품을 주문하면 예외 발생")
+    void createOrder_Failure_NonExistentProduct() {
+        // given
+        String email = "test@example.com";
+        String address = "123 Street";
+        String zipCode = "12345";
+        Map<Long, Integer> productQuantities = Map.of(9999L, 2);
+
+        // when & then
+        assertThrows(IllegalStateException.class, () ->
+                orderService.createOrder(email, address, zipCode, productQuantities));
+    }
+
+    @Test
+    @DisplayName("주문 생성 후 totalPrice 가 0이 아닌지 검증")
+    void createOrder_Failure_ZeroTotalPrice() {
+        // given
+        String email = "test@example.com";
+        String address = "123 Street";
+        String zipCode = "12345";
+        Map<Long, Integer> productQuantities = Map.of(productId1, 2, productId2, 1);
+
+        // when
+        orderService.createOrder(email, address, zipCode, productQuantities);
+
+        // then
+        Order order = orderRepository.findAll().getFirst();
+        assertThat(order.getTotalPrice()).isGreaterThan(0);
     }
 }

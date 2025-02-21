@@ -23,4 +23,13 @@ public class ProductService {
         return productRepository.findByCategory(category, pageable)
                 .map(ProductResponse::from);
     }
+
+    @Transactional(readOnly = true)
+    public Page<ProductResponse> searchProductsByName(String keyword, int page, int pageSize, String sort) {
+        Pageable pageable = PageRequest.of(page, pageSize,
+                Sort.by(sort.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));
+
+        return productRepository.searchByName(keyword, pageable)
+                .map(ProductResponse::from);
+    }
 }

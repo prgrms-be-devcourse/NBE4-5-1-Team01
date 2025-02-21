@@ -43,6 +43,15 @@ class ProductControllerTest {
                 .build());
 
         productRepository.save(Product.builder()
+                .name("과테말라 안티구아")
+                .description("스모키한 향과 묵직한 바디감을 자랑하는 원두")
+                .price(14000)
+                .imageUrl("guatemala.jpg")
+                .inventory(10)
+                .category(ProductCategory.HAND_DRIP)
+                .build());
+
+        productRepository.save(Product.builder()
                 .name("콜롬비아 수프리모")
                 .description("견과류와 초콜릿 향이 감도는 원두")
                 .price(13000)
@@ -82,5 +91,53 @@ class ProductControllerTest {
                         .param("pageSize", "10")
                         .param("sort", "asc"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("페이지네이션 동작 검증 - 2개씩 가져오기")
+    void getProductsByCategory_Pagination() throws Exception {
+        mockMvc.perform(get("/GCcoffee/items")
+                        .param("category", "HAND_DRIP")
+                        .param("page", "0")
+                        .param("pageSize", "2")
+                        .param("sort", "asc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(2)); // 2개까지만 가져오는지 확인
+    }
+
+    @Test
+    @DisplayName("내림차순 정렬 확인")
+    void getProductsByCategory_SortDescending() throws Exception {
+        mockMvc.perform(get("/GCcoffee/items")
+                        .param("category", "HAND_DRIP")
+                        .param("page", "0")
+                        .param("pageSize", "10")
+                        .param("sort", "desc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].name").value("과테말라 안티구아"));
+    }
+
+
+    @Test
+    @DisplayName("잘못된 카테고리 요청 시 400 Bad Request 반환")
+    void getProductsByCategory_InvalidCategory() throws Exception {
+        mockMvc.perform(get("/GCcoffee/items")
+                        .param("category", "INVALID_CATEGORY")
+                        .param("page", "0")
+                        .param("pageSize", "10")
+                        .param("sort", "asc"))
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    @DisplayName("페이지 크기 생략 시 기본값 적용")
+    void getProductsByCategory_DefaultPageSize() throws Exception {
+        mockMvc.perform(get("/GCcoffee/items")
+                        .param("category", "HAND_DRIP")
+                        .param("page", "0")
+                        .param("sort", "asc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray());
     }
 }
