@@ -6,6 +6,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum SearchKeywordType {
+    id("id"),
     name("name"),
     description("description"),
     category("category");
