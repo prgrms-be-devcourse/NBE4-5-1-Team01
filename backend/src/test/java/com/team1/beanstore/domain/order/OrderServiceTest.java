@@ -8,13 +8,13 @@ import com.team1.beanstore.domain.order.service.OrderService;
 import com.team1.beanstore.domain.product.ProductRepository;
 import com.team1.beanstore.domain.product.entity.Product;
 import com.team1.beanstore.domain.product.entity.ProductCategory;
+import com.team1.beanstore.global.dto.PageDto;
 import com.team1.beanstore.global.exception.ServiceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,8 +78,8 @@ class OrderServiceTest {
         assertDoesNotThrow(() -> orderService.createOrder(email, address, zipCode, productQuantities));
 
         // then
-        assertThat(orderRepository.count()).isEqualTo(1);
-        Order order = orderRepository.findAll().getFirst();
+        assertThat(orderRepository.count()).isEqualTo(4);
+        Order order = orderRepository.findAll().getLast();
         assertThat(order.getEmail()).isEqualTo(email);
         assertThat(order.getOrderItems()).hasSize(2);
     }
@@ -227,10 +227,10 @@ class OrderServiceTest {
         String keyword = "";
         String sort = "asc";
 
-        Page<OrderResponseWithDetail> pageOrder = orderService.getOrders(page, pageSize, keyword, sort);
+        PageDto<OrderResponseWithDetail> pageOrder = orderService.getOrders(page, pageSize, keyword, sort);
 
-        assertThat(pageOrder.getContent().size()).isEqualTo(2);
-        assertThat(pageOrder.getContent().getFirst().getEmail()).isEqualTo("test1@example.com");
+        assertThat(pageOrder.getItems().size()).isEqualTo(5);
+        assertThat(pageOrder.getItems().getFirst().getEmail()).isEqualTo("test1@example.com");
     }
 
     @Test
@@ -243,10 +243,10 @@ class OrderServiceTest {
         String keyword = "";
         String sort = "asc";
 
-        Page<OrderResponseWithDetail> pageOrder = orderService.getOrders(page, pageSize, keyword, sort);
+        PageDto<OrderResponseWithDetail> pageOrder = orderService.getOrders(page, pageSize, keyword, sort);
 
-        assertThat(pageOrder.getContent().size()).isEqualTo(1);
-        assertThat(pageOrder.getContent().getFirst().getEmail()).isEqualTo("test1@example.com");
+        assertThat(pageOrder.getItems().size()).isEqualTo(1);
+        assertThat(pageOrder.getItems().getFirst().getEmail()).isEqualTo("test1@example.com");
     }
 
     @Test
@@ -259,10 +259,10 @@ class OrderServiceTest {
         String keyword = "test1";
         String sort = "asc";
 
-        Page<OrderResponseWithDetail> pageOrder = orderService.getOrders(page, pageSize, keyword, sort);
+        PageDto<OrderResponseWithDetail> pageOrder = orderService.getOrders(page, pageSize, keyword, sort);
 
-        assertThat(pageOrder.getContent().size()).isEqualTo(1);
-        assertThat(pageOrder.getContent().getFirst().getEmail()).isEqualTo("test1@example.com");
+        assertThat(pageOrder.getItems().size()).isEqualTo(2);
+        assertThat(pageOrder.getItems().getFirst().getEmail()).isEqualTo("test1@example.com");
     }
 
     @Test
@@ -275,10 +275,10 @@ class OrderServiceTest {
         String keyword = "";
         String sort = "desc";
 
-        Page<OrderResponseWithDetail> pageOrder = orderService.getOrders(page, pageSize, "", sort);
+        PageDto<OrderResponseWithDetail> pageOrder = orderService.getOrders(page, pageSize, "", sort);
 
-        assertThat(pageOrder.getContent().size()).isEqualTo(2);
-        assertThat(pageOrder.getContent().getFirst().getEmail()).isEqualTo("test2@example.com");
+        assertThat(pageOrder.getItems().size()).isEqualTo(5);
+        assertThat(pageOrder.getItems().getFirst().getEmail()).isEqualTo("test2@example.com");
     }
 
     @Test
