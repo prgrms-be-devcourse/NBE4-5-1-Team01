@@ -29,7 +29,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     Page<Product> findByDescriptionLike(String likeKeyword, Pageable pageable);
 
-//    Page<Product> findByCategory(ProductCategory categoryEnum, Pageable pageable);
-
     Optional<Product> findTopByOrderByIdDesc();
 }

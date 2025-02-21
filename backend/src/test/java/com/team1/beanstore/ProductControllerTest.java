@@ -1,6 +1,6 @@
 package com.team1.beanstore;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.team1.beanstore.domain.admin.AdminController;
 import com.team1.beanstore.domain.admin.AuthTokenService;
 import com.team1.beanstore.domain.product.ProductController;
 import com.team1.beanstore.domain.product.ProductRepository;
@@ -267,7 +267,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(ProductController.class))
+                .andExpect(handler().handlerType(AdminController.class))
                 .andExpect(handler().methodName("getItems"))
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("상품 목록 조회 성공"))
@@ -294,7 +294,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(ProductController.class))
+                .andExpect(handler().handlerType(AdminController.class))
                 .andExpect(handler().methodName("getItems"))
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("상품 목록 조회 성공"))
@@ -321,7 +321,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(ProductController.class))
+                .andExpect(handler().handlerType(AdminController.class))
                 .andExpect(handler().methodName("getItems"))
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("상품 목록 조회 성공"))
@@ -348,7 +348,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(ProductController.class))
+                .andExpect(handler().handlerType(AdminController.class))
                 .andExpect(handler().methodName("getItems"))
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("상품 목록 조회 성공"))
@@ -375,7 +375,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(ProductController.class))
+                .andExpect(handler().handlerType(AdminController.class))
                 .andExpect(handler().methodName("getItems"))
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("상품 목록 조회 성공"))
@@ -402,7 +402,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isBadRequest())
-                .andExpect(handler().handlerType(ProductController.class))
+                .andExpect(handler().handlerType(AdminController.class))
                 .andExpect(handler().methodName("getItems"))
                 .andExpect(jsonPath("$.code").value("400-1"))
                 .andExpect(jsonPath("$.msg").value("잘못된 검색타입: CLOTHES"));
@@ -421,7 +421,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(ProductController.class))
+                .andExpect(handler().handlerType(AdminController.class))
                 .andExpect(handler().methodName("getItem"))
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("상품 조회 성공"))
@@ -438,7 +438,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isNotFound())
-                .andExpect(handler().handlerType(ProductController.class))
+                .andExpect(handler().handlerType(AdminController.class))
                 .andExpect(handler().methodName("getItem"))
                 .andExpect(jsonPath("$.code").value("404-1"))
                 .andExpect(jsonPath("$.msg").value("존재하지 않는 글"));
@@ -459,7 +459,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isCreated())
-                .andExpect(handler().handlerType(ProductController.class))
+                .andExpect(handler().handlerType(AdminController.class))
                 .andExpect(handler().methodName("createItem"))
                 .andExpect(jsonPath("$.code").value("201-1"))
                 .andExpect(jsonPath("$.msg").value("상품 등록 성공"))
@@ -482,7 +482,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isBadRequest())
-                .andExpect(handler().handlerType(ProductController.class))
+                .andExpect(handler().handlerType(AdminController.class))
                 .andExpect(handler().methodName("createItem"));
     }
 
@@ -501,7 +501,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isBadRequest())
-                .andExpect(handler().handlerType(ProductController.class))
+                .andExpect(handler().handlerType(AdminController.class))
                 .andExpect(handler().methodName("createItem"));
     }
 
@@ -520,7 +520,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isBadRequest())
-                .andExpect(handler().handlerType(ProductController.class))
+                .andExpect(handler().handlerType(AdminController.class))
                 .andExpect(handler().methodName("createItem"));
     }
 
@@ -539,7 +539,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isBadRequest())
-                .andExpect(handler().handlerType(ProductController.class))
+                .andExpect(handler().handlerType(AdminController.class))
                 .andExpect(handler().methodName("createItem"));
     }
 
@@ -558,7 +558,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isBadRequest())
-                .andExpect(handler().handlerType(ProductController.class))
+                .andExpect(handler().handlerType(AdminController.class))
                 .andExpect(handler().methodName("createItem"));
     }
 
@@ -579,7 +579,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(ProductController.class))
+                .andExpect(handler().handlerType(AdminController.class))
                 .andExpect(handler().methodName("modifyItem"))
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("%d번 상품 수정 성공".formatted(id)));
@@ -610,7 +610,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isNotFound())
-                .andExpect(handler().handlerType(ProductController.class))
+                .andExpect(handler().handlerType(AdminController.class))
                 .andExpect(handler().methodName("modifyItem"))
                 .andExpect(jsonPath("$.code").value("404-1"))
                 .andExpect(jsonPath("$.msg").value("존재하지 않는 상품"));
@@ -626,7 +626,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(ProductController.class))
+                .andExpect(handler().handlerType(AdminController.class))
                 .andExpect(handler().methodName("deleteItem"))
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("%d번 상품 삭제 성공".formatted(id)));
@@ -641,7 +641,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isNotFound())
-                .andExpect(handler().handlerType(ProductController.class))
+                .andExpect(handler().handlerType(AdminController.class))
                 .andExpect(handler().methodName("deleteItem"))
                 .andExpect(jsonPath("$.code").value("404-1"))
                 .andExpect(jsonPath("$.msg").value("존재하지 않는 상품"));
