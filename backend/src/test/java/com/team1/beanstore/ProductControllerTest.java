@@ -55,8 +55,6 @@ class ProductControllerTest {
         token = authTokenService.genToken();
 
 
-        productRepository.deleteAll();
-
         productRepository.save(Product.builder()
                 .name("에티오피아 예가체프")
                 .description("과일 향과 부드러운 산미가 특징인 원두")
