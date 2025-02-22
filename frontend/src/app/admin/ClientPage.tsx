@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
@@ -25,7 +25,7 @@ export default function ClientPage({
  // empty rsData 처리
   const { items = [] } = rsData?.data ?? {};
 
-  // 관리자 페이지 이동처리
+  // 관리자 페이지 이동처리 - 쿠키로그인 되면 추가가
   // useEffect(() => {
   //   if (!isLogin) {
   //     router.replace("/admin/login");
