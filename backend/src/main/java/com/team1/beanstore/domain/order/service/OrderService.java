@@ -1,8 +1,9 @@
 package com.team1.beanstore.domain.order.service;
 
 import com.team1.beanstore.domain.order.OrderMapper;
-import com.team1.beanstore.domain.order.OrderResponse;
-import com.team1.beanstore.domain.order.OrderResponseWithDetail;
+import com.team1.beanstore.domain.order.dto.OrderResponse;
+import com.team1.beanstore.domain.order.dto.OrderResponseWithDetail;
+import com.team1.beanstore.domain.order.dto.OrderResponseWithItems;
 import com.team1.beanstore.domain.order.entity.Order;
 import com.team1.beanstore.domain.order.entity.OrderItem;
 import com.team1.beanstore.domain.order.entity.OrderStatus;
@@ -51,11 +52,11 @@ public class OrderService {
         return new PageDto<>(mappedOrders);
     }
 
-    public OrderResponseWithDetail getOrder(long id) {
+    public OrderResponseWithItems getOrder(long id) {
         Order order = orderRepository.findById(id).orElseThrow(
                 () -> new ServiceException("404-1", "존재하지 않는 주문입니다."));
 
-        return new OrderResponseWithDetail(order);
+        return new OrderResponseWithItems(order);
     }
 
     @Transactional

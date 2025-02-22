@@ -1,6 +1,6 @@
 package com.team1.beanstore.domain.admin;
 
-import com.team1.beanstore.domain.order.OrderResponse;
+import com.team1.beanstore.domain.order.dto.OrderResponse;
 import com.team1.beanstore.domain.order.entity.OrderStatus;
 import com.team1.beanstore.domain.order.service.OrderService;
 import com.team1.beanstore.domain.product.ProductRepository;
@@ -93,8 +93,8 @@ public class AdminControllerTest {
                 .andExpect(handler().methodName("getOrders"))
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("주문 전체 조회가 완료되었습니다."))
-                .andExpect(jsonPath("$.data.content[0].email").value("test1@example.com"))
-                .andExpect(jsonPath("$.data.content[1].email").value("test2@example.com"));
+                .andExpect(jsonPath("$.data.items[0].email").value("test1@example.com"))
+                .andExpect(jsonPath("$.data.items[1].email").value("test2@example.com"));
     }
 
     @Test
@@ -103,16 +103,19 @@ public class AdminControllerTest {
         long id = orderResponse1.orderId();
 
         ResultActions resultActions = mvc
-                .perform(get("/GCcoffee/admin/order/%d".formatted(id)))
+                .perform(get("/GCcoffee/admin/orders/%d".formatted(id)))
                 .andDo(print());
 
         resultActions
                 .andExpect(status().isOk())
                 .andExpect(handler().handlerType(AdminOrderController.class))
-                .andExpect(handler().methodName("getOrder"))
                 .andExpect(jsonPath("$.code").value("200-1"))
-                .andExpect(jsonPath("$.msg").value("주문 상세 조회가 완료되었습니다."))
-                .andExpect(jsonPath("$.data.email").value("test1@example.com"));
+                .andExpect(jsonPath("$.msg").value("%d번 주문 상세 조회가 완료되었습니다.".formatted(id)))
+                .andExpect(jsonPath("$.data.email").value("test1@example.com"))
+                .andExpect(jsonPath("$.data.items[0].productName").value("에티오피아 예가체프"))
+                .andExpect(jsonPath("$.data.items[0].quantity").value(2))
+                .andExpect(jsonPath("$.data.items[1].productName").value("콜롬비아 수프리모"))
+                .andExpect(jsonPath("$.data.items[1].quantity").value(1));
     }
 
     @Test
@@ -121,7 +124,7 @@ public class AdminControllerTest {
         long id = 100000;
 
         ResultActions resultActions = mvc
-                .perform(get("/GCcoffee/admin/order/%d".formatted(id)))
+                .perform(get("/GCcoffee/admin/orders/%d".formatted(id)))
                 .andDo(print());
 
         resultActions
@@ -139,7 +142,7 @@ public class AdminControllerTest {
         OrderStatus orderStatus = OrderStatus.COMPLETED;
 
         ResultActions resultActions = mvc
-                .perform(patch("/GCcoffee/admin/order/%d".formatted(id))
+                .perform(patch("/GCcoffee/admin/orders/%d".formatted(id))
                         .content("""
                                 {
                                     "orderStatus": "%s"
@@ -155,7 +158,8 @@ public class AdminControllerTest {
                 .andExpect(handler().handlerType(AdminOrderController.class))
                 .andExpect(handler().methodName("modifyOrder"))
                 .andExpect(jsonPath("$.code").value("200-1"))
-                .andExpect(jsonPath("$.msg").value("주문 수정이 완료되었습니다."))
+                .andExpect(jsonPath("$.msg").value("%d번 주문 수정이 완료되었습니다.".formatted(id)))
+                .andExpect(jsonPath("$.data.orderId").value(id))
                 .andExpect(jsonPath("$.data.orderStatus").value(orderStatus.name()));
     }
 
@@ -166,7 +170,7 @@ public class AdminControllerTest {
         OrderStatus orderStatus = OrderStatus.COMPLETED;
 
         ResultActions resultActions = mvc
-                .perform(patch("/GCcoffee/admin/order/%d".formatted(id))
+                .perform(patch("/GCcoffee/admin/orders/%d".formatted(id))
                         .content("""
                                 {
                                     "orderStatus": "%s"
@@ -191,7 +195,7 @@ public class AdminControllerTest {
         long id = orderResponse1.orderId();
 
         ResultActions resultActions = mvc
-                .perform(delete("/GCcoffee/admin/order/%d".formatted(id)))
+                .perform(delete("/GCcoffee/admin/orders/%d".formatted(id)))
                 .andDo(print());
 
         resultActions
@@ -199,7 +203,7 @@ public class AdminControllerTest {
                 .andExpect(handler().handlerType(AdminOrderController.class))
                 .andExpect(handler().methodName("deleteOrder"))
                 .andExpect(jsonPath("$.code").value("200-1"))
-                .andExpect(jsonPath("$.msg").value("주문 삭제가 완료되었습니다."));
+                .andExpect(jsonPath("$.msg").value("%d번 주문 삭제가 완료되었습니다.".formatted(id)));
     }
 
     @Test
@@ -208,7 +212,7 @@ public class AdminControllerTest {
         long id = 100000;
 
         ResultActions resultActions = mvc
-                .perform(delete("/GCcoffee/admin/order/%d".formatted(id)))
+                .perform(delete("/GCcoffee/admin/orders/%d".formatted(id)))
                 .andDo(print());
 
         resultActions

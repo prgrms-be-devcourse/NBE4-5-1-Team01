@@ -1,4 +1,4 @@
-package com.team1.beanstore.domain.order;
+package com.team1.beanstore.domain.order.dto;
 
 import com.team1.beanstore.domain.order.entity.Order;
 import com.team1.beanstore.domain.order.entity.OrderStatus;
@@ -10,8 +10,8 @@ import java.util.List;
 
 @AllArgsConstructor
 @Getter
-public class OrderResponseWithDetail {
-    private final long id;
+public class OrderResponseWithItems {
+    private final long orderId;
     private final String email;
     private final String address;
     private final String zipCode;
@@ -20,7 +20,7 @@ public class OrderResponseWithDetail {
     private final int totalPrice;
     private final List<OrderItemDto> items;
 
-    public OrderResponseWithDetail(Order order) {
+    public OrderResponseWithItems(Order order) {
         this(order.getId(),
                 order.getEmail(),
                 order.getAddress(),

@@ -1,7 +1,8 @@
 package com.team1.beanstore.domain.admin;
 
-import com.team1.beanstore.domain.order.OrderResponse;
-import com.team1.beanstore.domain.order.OrderResponseWithDetail;
+import com.team1.beanstore.domain.order.dto.OrderResponse;
+import com.team1.beanstore.domain.order.dto.OrderResponseWithDetail;
+import com.team1.beanstore.domain.order.dto.OrderResponseWithItems;
 import com.team1.beanstore.domain.order.entity.OrderStatus;
 import com.team1.beanstore.domain.order.service.OrderService;
 import com.team1.beanstore.domain.product.ProductService;
@@ -23,9 +24,9 @@ public class AdminOrderController {
     @GetMapping("/orders")
     @Transactional(readOnly = true)
     public RsData<PageDto<OrderResponseWithDetail>> getOrders(@RequestParam(defaultValue = "1") int page,
-                                                           @RequestParam(defaultValue = "10") int pageSize,
-                                                           @RequestParam(defaultValue = "") String keyword,
-                                                           @RequestParam(defaultValue = "asc") String sort) {
+                                                              @RequestParam(defaultValue = "10") int pageSize,
+                                                              @RequestParam(defaultValue = "") String keyword,
+                                                              @RequestParam(defaultValue = "asc") String sort) {
         PageDto<OrderResponseWithDetail> orderResponsePage = orderService.getOrders(page, pageSize, keyword, sort);
         return new RsData<>("200-1",
                 "주문 전체 조회가 완료되었습니다.",
@@ -35,11 +36,11 @@ public class AdminOrderController {
 
     @GetMapping("/orders/{id}")
     @Transactional(readOnly = true)
-    public RsData<OrderResponseWithDetail> getOrder(@PathVariable long id) {
-        OrderResponseWithDetail orderResponseWithDetail = orderService.getOrder(id);
+    public RsData<OrderResponseWithItems> getOrder(@PathVariable long id) {
+        OrderResponseWithItems orderResponseWithItems = orderService.getOrder(id);
         return new RsData<>("200-1",
-                "주문 상세 조회가 완료되었습니다.",
-                orderResponseWithDetail);
+                "%d번 주문 상세 조회가 완료되었습니다.".formatted(id),
+                orderResponseWithItems);
     }
 
 
@@ -51,7 +52,7 @@ public class AdminOrderController {
     public RsData<OrderResponse> modifyOrder(@PathVariable long id, @RequestBody AdminOrderModifyReqBody reqBody) {
         OrderResponse orderResponse = orderService.modify(id, reqBody.orderStatus());
         return new RsData<>("200-1",
-                "주문 수정이 완료되었습니다.",
+                "%d번 주문 수정이 완료되었습니다.".formatted(id),
                 orderResponse);
     }
 
@@ -60,7 +61,7 @@ public class AdminOrderController {
     public RsData<Empty> deleteOrder(@PathVariable long id) {
         orderService.delete(id);
         return new RsData<>("200-1",
-                "주문 삭제가 완료되었습니다.");
+                "%d번 주문 삭제가 완료되었습니다.".formatted(id));
     }
 
 

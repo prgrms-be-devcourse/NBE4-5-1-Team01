@@ -1,4 +1,4 @@
-package com.team1.beanstore.domain.order;
+package com.team1.beanstore.domain.order.dto;
 
 import com.team1.beanstore.domain.order.entity.OrderItem;
 import lombok.AllArgsConstructor;

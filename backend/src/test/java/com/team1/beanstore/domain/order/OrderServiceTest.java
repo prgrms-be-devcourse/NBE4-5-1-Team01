@@ -1,5 +1,7 @@
 package com.team1.beanstore.domain.order;
 
+import com.team1.beanstore.domain.order.dto.OrderResponseWithDetail;
+import com.team1.beanstore.domain.order.dto.OrderResponseWithItems;
 import com.team1.beanstore.domain.order.entity.Order;
 import com.team1.beanstore.domain.order.entity.OrderItem;
 import com.team1.beanstore.domain.order.entity.OrderStatus;
@@ -94,7 +96,7 @@ class OrderServiceTest {
         Map<Long, Integer> productQuantities = Map.of(productId2, 10);
 
         // when & then
-        assertThrows(IllegalStateException.class, () -> orderService.createOrder(email, address, zipCode, productQuantities));
+        assertThrows(ServiceException.class, () -> orderService.createOrder(email, address, zipCode, productQuantities));
     }
 
     @Test
@@ -146,7 +148,7 @@ class OrderServiceTest {
         Map<Long, Integer> productQuantities = Map.of(productId1, 2);
 
         // when & then
-        assertThrows(IllegalStateException.class, () ->
+        assertThrows(ServiceException.class, () ->
                 orderService.createOrder("test@example.com", "123 Street", "12345", productQuantities));
     }
 
@@ -182,7 +184,7 @@ class OrderServiceTest {
         Map<Long, Integer> productQuantities = Map.of(9999L, 2);
 
         // when & then
-        assertThrows(IllegalStateException.class, () ->
+        assertThrows(ServiceException.class, () ->
                 orderService.createOrder(email, address, zipCode, productQuantities));
     }
 
@@ -293,7 +295,7 @@ class OrderServiceTest {
 
         long id = orderRepository.findAll().getFirst().getId();
 
-        OrderResponseWithDetail orderResponse = orderService.getOrder(id);
+        OrderResponseWithItems orderResponse = orderService.getOrder(id);
         assertThat(orderResponse.getEmail()).isEqualTo("test1@example.com");
         assertThat(orderResponse.getZipCode()).isEqualTo("aaa");
         assertThat(orderResponse.getTotalPrice()).isEqualTo(37000);
