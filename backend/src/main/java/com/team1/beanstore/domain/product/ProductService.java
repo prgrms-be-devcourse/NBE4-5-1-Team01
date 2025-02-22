@@ -2,6 +2,7 @@ package com.team1.beanstore.domain.product;
 
 import com.team1.beanstore.domain.product.entity.Product;
 import com.team1.beanstore.domain.product.entity.ProductCategory;
+import com.team1.beanstore.global.dto.PageDto;
 import com.team1.beanstore.global.exception.ServiceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -83,17 +84,20 @@ public class ProductService {
 
 
 
-    public Page<ProductResponse> getListedItems(int page, int pageSize, SearchKeywordType keywordType, String keyword, String sort) {
+    public PageDto<ProductResponse> getListedItems(int page, int pageSize, SearchKeywordType keywordType, String keyword, String sort) {
         Sort.Direction direction = "ASC".equalsIgnoreCase(sort) ? Sort.Direction.ASC : Sort.Direction.DESC;
         PageRequest pageRequest = PageRequest.of(page - 1, pageSize, Sort.by(direction, "name"));
 
         String likeKeyword = "%" + keyword + "%";
         if (SearchKeywordType.id == keywordType) {
-            return productRepository.findAll(pageRequest).map(ProductResponse::from);
+            Page<ProductResponse> mapperAll = productRepository.findAll(pageRequest).map(ProductResponse::from);
+            return new PageDto<>(mapperAll);
         } else if (SearchKeywordType.name == keywordType) {
-            return productRepository.findByNameLike(likeKeyword, pageRequest).map(ProductResponse::from);
+            Page<ProductResponse> mapperName = productRepository.findByNameLike(likeKeyword, pageRequest).map(ProductResponse::from);
+            return new PageDto<>(mapperName);
         } else if (SearchKeywordType.description == keywordType) {
-            return productRepository.findByDescriptionLike(likeKeyword, pageRequest).map(ProductResponse::from);
+            Page<ProductResponse> mapperDescription = productRepository.findByDescriptionLike(likeKeyword, pageRequest).map(ProductResponse::from);
+            return new PageDto<>(mapperDescription);
         }
 
         ProductCategory categoryEnum;
@@ -103,7 +107,8 @@ public class ProductService {
             throw new ServiceException("400-1", "잘못된 검색타입: " + keyword);
         }
 
-        return productRepository.findByCategory(categoryEnum, pageRequest).map(ProductResponse::from);
+        Page<ProductResponse> mapperCategory = productRepository.findByCategory(categoryEnum, pageRequest).map(ProductResponse::from);
+        return new PageDto<>(mapperCategory);
     }
 
 

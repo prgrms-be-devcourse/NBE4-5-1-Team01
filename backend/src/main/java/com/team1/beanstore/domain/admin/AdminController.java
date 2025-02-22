@@ -74,7 +74,7 @@ public class AdminController {
     }
 
     @GetMapping("/items")
-    public RsData<Page<ProductResponse>> getItems(
+    public RsData<PageDto<ProductResponse>> getItems(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(defaultValue = "name") SearchKeywordType keywordType,
@@ -82,7 +82,7 @@ public class AdminController {
             @RequestParam(defaultValue = "asc") String sort
     ) {
 
-        Page<ProductResponse> products = productService.getListedItems(page, pageSize, keywordType, keyword, sort);
+        PageDto<ProductResponse> products = productService.getListedItems(page, pageSize, keywordType, keyword, sort);
         return new RsData<>(
                 "200-1",
                 "상품 목록 조회 성공",
