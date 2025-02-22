@@ -1,6 +1,12 @@
 "use client";
 
+import client from "@/lib/backend/client";
+import { Router, useRouter } from "next/router";
+
 export default function ClinetPage() {
+
+  const router = useRouter();
+
   async function login(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
@@ -13,19 +19,19 @@ export default function ClinetPage() {
       return;
     }
 
-    // const response = await client.POST("/admin/login", {
-    //   body: {
-    //     password,
-    //   },
-    //   credentials: "include",
-    // });
+    const response = await client.POST("/GCcoffee/admin/login", {
+      body: {
+        password,
+      },
+      credentials: "include",
+    });
 
-    // if (response.error) {
-    //   alert(response.error.msg);
-    //   return;
-    // }
+    if (response.error) {
+      alert(response.error.msg);
+      return;
+    }
 
-    // router.push(`/admin`);
+    router.push("/admin");
   }
 
   return (
