@@ -32,6 +32,7 @@ public class PageDto<T> {
         this.totalItems = (int) page.getTotalElements();
         this.totalPages = page.getTotalPages();
         this.curPageNo = page.getNumber() + 1;
+        this.pageSize = page.getSize();
     }
 
 }
