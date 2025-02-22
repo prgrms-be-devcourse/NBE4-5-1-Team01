@@ -44,3 +44,4 @@ next-env.d.ts
 # custom
 .idea
 schema.d.ts
+apiV1.json

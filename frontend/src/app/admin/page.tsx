@@ -2,7 +2,9 @@ import { cookies } from "next/headers";
 import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 import { mockRsData } from "@/global/mockRsData";
 import ClientPage from "./ClientPage";
+import createClient from "openapi-fetch";
 import client from "@/lib/backend/client";
+
 
 export default async function Page({
   searchParams,
@@ -29,13 +31,22 @@ export default async function Page({
     <ClientPage isLogin={isLogin} />;
   }
 
-  const response = await client.GET("/GCcoffee/admin/items", {
-    headers: {
-      cookie: (await cookies()).toString(),
-    },
-  });
-
-  console.log(response);
+  const response = await client.GET(
+    "/GCcoffee/admin/items",
+    {
+      headers: {
+        cookie: (await cookies()).toString(),
+      },
+      params: {
+        query: {
+          keyword,
+          keywordType,
+          pageSize,
+          page,
+        },
+      },
+    }
+  ) ;
 
   const rsData = response.data;
 
