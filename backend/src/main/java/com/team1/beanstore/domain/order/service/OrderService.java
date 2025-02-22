@@ -43,6 +43,7 @@ public class OrderService {
         }
     }
 
+    @Transactional(readOnly = true)
     public PageDto<OrderResponseWithDetail> getOrders(int page, int pageSize, String keyword, String sort) {
         Pageable pageable = PageRequest.of(page - 1, pageSize,
                 Sort.by(sort.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, "id"));
@@ -52,11 +53,12 @@ public class OrderService {
         return new PageDto<>(mappedOrders);
     }
 
+    @Transactional(readOnly = true)
     public OrderResponseWithItems getOrder(long id) {
-        Order order = orderRepository.findById(id).orElseThrow(
+        Order order = orderRepository.findWithItemsById(id).orElseThrow(
                 () -> new ServiceException("404-1", "존재하지 않는 주문입니다."));
 
-        return new OrderResponseWithItems(order);
+        return new OrderResponseWithItems(order); //  N+1 문제 해결
     }
 
     @Transactional
@@ -68,6 +70,7 @@ public class OrderService {
         return OrderResponse.from(order);
     }
 
+    @Transactional
     public void delete(long id) {
         Order order = orderRepository.findById(id).orElseThrow(
                 () -> new ServiceException("404-1", "존재하지 않는 주문입니다."));
@@ -75,6 +78,7 @@ public class OrderService {
         orderRepository.delete(order);
     }
 
+    @Transactional(readOnly = true)
     public long count() {
         return orderRepository.count();
     }

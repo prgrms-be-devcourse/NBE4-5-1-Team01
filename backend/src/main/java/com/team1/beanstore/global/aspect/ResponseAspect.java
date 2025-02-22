@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 public class ResponseAspect {
     private final HttpServletResponse response;
 
-    // 모든 ..beanstore 패키지 안에 있는 모든 컨트롤러에 대하여 RsData 데이터 처리를 해줍니다.
     @Around("execution(* com.team1.beanstore..*Controller.*(..))")
     public Object responseAspect(ProceedingJoinPoint joinPoint) throws Throwable {
         Object result = joinPoint.proceed();
