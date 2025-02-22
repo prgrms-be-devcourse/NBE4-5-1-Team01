@@ -7,6 +7,7 @@ import com.team1.beanstore.domain.order.entity.Order;
 import com.team1.beanstore.domain.order.entity.OrderItem;
 import com.team1.beanstore.domain.order.entity.OrderStatus;
 import com.team1.beanstore.domain.order.repository.OrderRepository;
+import com.team1.beanstore.global.dto.PageDto;
 import com.team1.beanstore.global.exception.ServiceException;
 import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
@@ -37,16 +38,17 @@ public class OrderService {
             orderRepository.save(order);
             return OrderResponse.from(order);
         } catch (OptimisticLockException e) {
-            throw new IllegalStateException("동시 주문이 많아 처리가 실패했습니다. 다시 시도해주세요.");
+            throw new ServiceException("409-1", "동시 주문이 많아 처리가 실패했습니다. 다시 시도해주세요.");
         }
     }
 
-    public Page<OrderResponseWithDetail> getOrders(int page, int pageSize, String keyword, String sort) {
+    public PageDto<OrderResponseWithDetail> getOrders(int page, int pageSize, String keyword, String sort) {
         Pageable pageable = PageRequest.of(page - 1, pageSize,
                 Sort.by(sort.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, "id"));
         String likeKeyword = "%" + keyword + "%";
 
-        return orderRepository.findByEmailLike(likeKeyword, pageable).map(OrderResponseWithDetail::new);
+        Page<OrderResponseWithDetail> mappedOrders = orderRepository.findByEmailLike(likeKeyword, pageable).map(OrderResponseWithDetail::new);
+        return new PageDto<>(mappedOrders);
     }
 
     public OrderResponseWithDetail getOrder(long id) {
@@ -56,6 +58,7 @@ public class OrderService {
         return new OrderResponseWithDetail(order);
     }
 
+    @Transactional
     public OrderResponse modify(long id, OrderStatus orderStatus) {
         Order order = orderRepository.findById(id).orElseThrow(
                 () -> new ServiceException("404-1", "존재하지 않는 주문입니다."));
@@ -69,5 +72,9 @@ public class OrderService {
                 () -> new ServiceException("404-1", "존재하지 않는 주문입니다."));
 
         orderRepository.delete(order);
+    }
+
+    public long count() {
+        return orderRepository.count();
     }
 }

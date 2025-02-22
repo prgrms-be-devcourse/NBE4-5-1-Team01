@@ -30,7 +30,7 @@ spring:
         format_sql: true
         highlight_sql: true
         use_sql_comments: true
-        default_batch_fetch_size: 100
+        default_batch_fetch_size: 10
     open-in-view: false
 
 logging:
@@ -45,7 +45,7 @@ logging:
 custom:
   jwt:
     secret-key: abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890
-    expire-seconds: "#{60}"
+    expire-seconds: "#{60*60}"
 
 admin:
   password: $2a$10$91l05e6OGmMB46zQDYCV0uf90t.puGS.URGLH/KugeRBrNooWj/FS

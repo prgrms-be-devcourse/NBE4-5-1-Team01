@@ -2,6 +2,7 @@ package com.team1.beanstore.domain.product;
 
 import com.team1.beanstore.domain.product.entity.ProductCategory;
 import com.team1.beanstore.global.dto.RsData;
+import com.team1.beanstore.global.exception.ServiceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ public class ProductController {
             @RequestParam(defaultValue = "asc") String sort) {
 
         if (page < 0) {
-            throw new IllegalArgumentException("페이지 번호는 0 이상이어야 합니다.");
+            throw new ServiceException("400-3", "페이지 번호는 0 이상이어야 합니다.");
         }
 
         Page<ProductResponse> products = productService.getProductsByCategory(category, page, pageSize, sort);
@@ -39,7 +40,7 @@ public class ProductController {
             @RequestParam(defaultValue = "asc") String sort) {
 
         if (page < 0) {
-            throw new IllegalArgumentException("페이지 번호는 0 이상이어야 합니다.");
+            throw new ServiceException("400-3", "페이지 번호는 0 이상이어야 합니다.");
         }
 
         Page<ProductResponse> products = productService.searchProductsByName(keyword, page, pageSize, sort);

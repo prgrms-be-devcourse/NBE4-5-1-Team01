@@ -5,9 +5,17 @@ import com.team1.beanstore.domain.order.entity.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
-    Page<Order> findByEmailLike(String keyword, Pageable pageable);
+    @Query("SELECT DISTINCT o FROM Order o " +
+            "LEFT JOIN FETCH o.orderItems oi " +
+            "LEFT JOIN FETCH oi.product " +
+            "WHERE o.email LIKE :keyword")
+    Page<Order> findByEmailLike(@Param("keyword") String keyword, Pageable pageable);
+
+
 }

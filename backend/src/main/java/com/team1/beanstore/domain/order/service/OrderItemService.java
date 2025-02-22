@@ -5,6 +5,7 @@ import com.team1.beanstore.domain.order.entity.Order;
 import com.team1.beanstore.domain.order.entity.OrderItem;
 import com.team1.beanstore.domain.product.ProductRepository;
 import com.team1.beanstore.domain.product.entity.Product;
+import com.team1.beanstore.global.exception.ServiceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +26,7 @@ public class OrderItemService {
         List<Product> products = productRepository.findByIds(new ArrayList<>(productQuantities.keySet()));
 
         if (products.size() != productQuantities.size()) {
-            throw new IllegalStateException("주문할 수 없는 상품이 포함되어 있습니다.");
+            throw new ServiceException("404-1","주문할 수 없는 상품이 포함되어 있습니다.");
         }
 
         return products.stream()

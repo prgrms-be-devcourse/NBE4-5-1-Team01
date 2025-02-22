@@ -75,6 +75,7 @@ class OrderControllerTest {
                 Map.of(productId1, 2, productId2, 1)
         );
 
+
         // when & then
         mockMvc.perform(post("/GCcoffee/orders")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -85,6 +86,7 @@ class OrderControllerTest {
                 .andExpect(jsonPath("$.data.orderId").isNumber())
                 .andExpect(jsonPath("$.data.orderStatus").value("PENDING"))
                 .andExpect(jsonPath("$.data.totalPrice").isNumber());
+
     }
 
     @Test
