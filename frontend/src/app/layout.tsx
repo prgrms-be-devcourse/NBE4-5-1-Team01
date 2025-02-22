@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "./globals.css";
-import ClinetLayout from "./ClientLayout";
+import ClientLayout from "./ClientLayout";
 
 config.autoAddCss = false;
 
@@ -37,13 +37,13 @@ export default async function RootLayout({
   //     };
 
   return (
-    <ClinetLayout
+    <ClientLayout
       //me={me}
       fontVariable={pretendard.variable}
       fontClassName={pretendard.className}
     >
       {children}
-    </ClinetLayout>
+    </ClientLayout>
   );
 }
 

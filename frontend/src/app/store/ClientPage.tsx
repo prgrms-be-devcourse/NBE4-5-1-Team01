@@ -33,7 +33,7 @@ export default function ClientPage({
 
   // 검색 실행 시 필터링된 상품을 저장
   const [filteredItems, setFilteredItems] = useState(
-    items.filter((item) => item.published)
+    items.filter((item) => item.name)
   );
   // 검색 핸들러
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -41,19 +41,17 @@ export default function ClientPage({
     setCurrentPage(1); // 검색 시 첫 페이지로 리셋
 
     // 필터링된 결과 업데이트
-    const newFilteredItems = items
-      .filter((item) => item.published) // 공개된 상품만 유지
-      .filter((item) =>
-        item[currentKeywordType]
-          .toLowerCase()
-          .includes(currentKeyword.toLowerCase())
-      );
+    const newFilteredItems = items.filter((item) =>
+      item[currentKeywordType]
+        .toLowerCase()
+        .includes(currentKeyword.toLowerCase())
+    );
 
     setFilteredItems(newFilteredItems);
 
     // URL 업데이트
     router.push(
-      `/store?keywordType=${currentKeywordType}&keyword=${currentKeyword}&pageSize=${currentPageSize}&page=1`
+      `/admin?keywordType=${currentKeywordType}&keyword=${currentKeyword}&pageSize=${currentPageSize}&page=1`
     );
   };
 
@@ -76,6 +74,11 @@ export default function ClientPage({
   const [cart, setCart] = useState<
     Map<number, { item: any; quantity: number }>
   >(new Map());
+  const [userInfo, setUserInfo] = useState({
+    email: "",
+    address: "",
+    postalCode: "",
+  });
 
   // 팝업 상태 관리
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -106,14 +109,31 @@ export default function ClientPage({
     });
   };
 
-  // 결제 버튼 클릭
+  const getTotalPrice = () => {
+    let total = 0;
+    cart.forEach(({ item, quantity }) => {
+      total += item.price * quantity;
+    });
+    return total;
+  };
+
+  // 결제
   const handleCheckout = () => {
     if (cart.size === 0) {
       alert("장바구니가 비어 있습니다.");
       return;
     }
+    if (!userInfo.email || !userInfo.address || !userInfo.postalCode) {
+      alert("이메일, 주소, 우편번호를 모두 입력해주세요.");
+      return;
+    }
     alert("결제가 완료되었습니다! 🎉");
     setCart(new Map());
+    setUserInfo({
+      email: "",
+      address: "",
+      postalCode: "",
+    });
   };
 
   // 팝업 열기
@@ -161,32 +181,30 @@ export default function ClientPage({
 
         {/* 상품 리스트 */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
-          {currentPageItems
-            .filter((item) => item.published) // 공개된 상품만 필터링
-            .map((item) => (
-              <div key={item.id} className="border rounded-lg p-3 shadow-md">
-                <div
-                  className="block cursor-pointer"
-                  onClick={() => openModal(item)}
-                >
-                  <img
-                    src={item.imageUrl}
-                    alt={item.name}
-                    className="w-full h-40 object-cover rounded-lg"
-                  />
-                  <h3 className="text-lg font-semibold mt-2">{item.name}</h3>
-                  <p className="text-sm text-gray-500">
-                    상품 ID: {item.itemId}
-                  </p>
-                </div>
-                <Button
-                  className="mt-3 w-full bg-blue-500 hover:bg-blue-600"
-                  onClick={() => addToCart(item)}
-                >
-                  장바구니 추가
-                </Button>
+          {currentPageItems.map((item) => (
+            <div key={item.id} className="border rounded-lg p-3 shadow-md">
+              <div
+                className="block cursor-pointer"
+                onClick={() => openModal(item)}
+              >
+                <img
+                  src={item.imageUrl}
+                  alt={item.name}
+                  className="w-full h-40 object-cover rounded-lg"
+                />
+                <h3 className="text-lg font-semibold mt-2">{item.name}</h3>
+                <p className="text-sm text-gray-700 font-bold">
+                  가격: {item.price}원
+                </p>
               </div>
-            ))}
+              <Button
+                className="mt-3 w-full bg-blue-500 hover:bg-blue-600"
+                onClick={() => addToCart(item)}
+              >
+                장바구니 추가
+              </Button>
+            </div>
+          ))}
         </div>
 
         {/* 페이징 */}
@@ -230,6 +248,42 @@ export default function ClientPage({
             ))}
           </ul>
         )}
+
+        <div className="mt-4 text-lg font-semibold">
+          <p>총 가격: {getTotalPrice()}원</p>
+        </div>
+
+        {/* 이메일, 주소, 우편번호 */}
+        <div className="mt-4">
+          <Input
+            type="email"
+            placeholder="이메일 입력"
+            className="w-full mb-2"
+            value={userInfo.email}
+            onChange={(e) =>
+              setUserInfo((prev) => ({ ...prev, email: e.target.value }))
+            }
+          />
+          <Input
+            type="text"
+            placeholder="주소 입력"
+            className="w-full mb-2"
+            value={userInfo.address}
+            onChange={(e) =>
+              setUserInfo((prev) => ({ ...prev, address: e.target.value }))
+            }
+          />
+          <Input
+            type="text"
+            placeholder="우편번호 입력"
+            className="w-full mb-2"
+            value={userInfo.postalCode}
+            onChange={(e) =>
+              setUserInfo((prev) => ({ ...prev, postalCode: e.target.value }))
+            }
+          />
+        </div>
+
         <Button
           className="mt-4 w-full bg-green-500 hover:bg-green-600"
           onClick={handleCheckout}
@@ -249,13 +303,22 @@ export default function ClientPage({
               className="w-full h-40 object-cover rounded-lg mb-4"
             />
             <p>
-              <strong>상품 ID:</strong> {selectedItem.itemId}
+              <strong>상품 이름:</strong> {selectedItem.name}
             </p>
             <p>
-              <strong>공개 여부:</strong> {`${selectedItem.published}`}
+              <strong>상품 ID:</strong> {selectedItem.id}
             </p>
             <p>
-              <strong>상품 정보:</strong> {selectedItem.description}
+              <strong>가격:</strong> {selectedItem.price}원
+            </p>
+            <p>
+              <strong>상품 설명:</strong> {selectedItem.description}
+            </p>
+            <p>
+              <strong>재고:</strong> {selectedItem.inventory}
+            </p>
+            <p>
+              <strong>카테고리:</strong> {selectedItem.category}
             </p>
             <div className="mt-4 flex gap-3">
               <Button
