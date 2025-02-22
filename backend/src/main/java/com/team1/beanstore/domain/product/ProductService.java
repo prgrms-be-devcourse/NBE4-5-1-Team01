@@ -1,5 +1,7 @@
 package com.team1.beanstore.domain.product;
 
+import com.team1.beanstore.domain.admin.dto.CreateItemReq;
+import com.team1.beanstore.domain.admin.dto.UpdateItemInfoReq;
 import com.team1.beanstore.domain.product.entity.Product;
 import com.team1.beanstore.domain.product.entity.ProductCategory;
 import com.team1.beanstore.global.dto.PageDto;
@@ -19,6 +21,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProductService {
 
+    private final ProductMapper productMapper;
     private final ProductRepository productRepository;
 
     @Transactional(readOnly = true)
@@ -39,51 +42,34 @@ public class ProductService {
                 .map(ProductResponse::from);
     }
 
-
-    public Map<String, Long> createItem(
-            String name,
-            int price,
-            String image_url,
-            int inventory,
-            String description,
-            ProductCategory category
-    ) {
-        Product product = productRepository.save(
-                Product.builder()
-                        .name(name)
-                        .price(price)
-                        .imageUrl(image_url)
-                        .inventory(inventory)
-                        .description(description)
-                        .category(category)
-                        .build()
-        );
+    @Transactional
+    public Map<String, Long> createItem(CreateItemReq reqBody) {
+        Product product = productRepository.save(productMapper.toEntity(reqBody));
         return Map.of("id", product.getId());
     }
 
-
-    public Map<String, Long> modifyItem(
-            long id,
-            String name,
-            int price,
-            String image_url,
-            int inventory,
-            String description,
-            ProductCategory category
-    ) {
+    @Transactional
+    public Map<String, Long> modifyItem(long id, UpdateItemInfoReq reqBody) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ServiceException("404-1", "존재하지 않는 상품"));
-        product.updateProduct( name, price, image_url, inventory, description, category);
+
+        product.updateInfo(reqBody);
         return Map.of("id", id);
     }
 
+    @Transactional
+    public Map<String, String> modifyItemImage(long id, String imageUrl) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ServiceException("404-1", "존재하지 않는 상품"));
+        product.updateImageUrl(imageUrl);
+        return Map.of("imageUrl", imageUrl);
+    }
 
     public Optional<Product> getLatestItem() {
         return productRepository.findTopByOrderByIdDesc();
     }
 
-
-
+    @Transactional
     public PageDto<ProductResponse> getListedItems(int page, int pageSize, SearchKeywordType keywordType, String keyword, String sort) {
         Sort.Direction direction = "ASC".equalsIgnoreCase(sort) ? Sort.Direction.ASC : Sort.Direction.DESC;
         PageRequest pageRequest = PageRequest.of(page - 1, pageSize, Sort.by(direction, "name"));
@@ -111,7 +97,7 @@ public class ProductService {
         return new PageDto<>(mapperCategory);
     }
 
-
+    @Transactional(readOnly = true)
     public ProductResponse getItem(Long id) {
         Product product = productRepository.findById(id).orElseThrow(
                 () -> new ServiceException("404-1", "존재하지 않는 글")
@@ -120,14 +106,13 @@ public class ProductService {
     }
 
 
-    @Transactional()
+    @Transactional(readOnly = true)
     public Map<String, Long> deleteItem(Long id) {
-        Product product = productRepository.findById(id).orElseThrow(
-                () -> new ServiceException("404-1", "존재하지 않는 상품")
-        );
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ServiceException("404-1", "존재하지 않는 상품"));
+
         product.delete();
         Long deletedId = product.getId();
         return Map.of("id", deletedId);
-
     }
 }

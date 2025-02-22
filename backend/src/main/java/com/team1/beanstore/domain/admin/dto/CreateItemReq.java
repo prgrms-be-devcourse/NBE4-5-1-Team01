@@ -1,11 +1,12 @@
 package com.team1.beanstore.domain.admin.dto;
 
+import com.team1.beanstore.domain.product.entity.ProductCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.NonNull;
 
-public record ItemReqBody(
+public record CreateItemReq(
         @Schema(description = "상품명", example = "에티오피아 예가체프")
         @NonNull @NotBlank String name,
 
@@ -22,5 +23,5 @@ public record ItemReqBody(
         @NonNull @NotBlank String description,
 
         @Schema(description = "카테고리", example = "HAND_DRIP")
-        @NonNull @NotBlank String category
+        @NonNull ProductCategory category
 ) {}
