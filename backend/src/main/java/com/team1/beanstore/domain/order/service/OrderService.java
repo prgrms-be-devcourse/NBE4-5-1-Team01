@@ -38,7 +38,7 @@ public class OrderService {
             orderRepository.save(order);
             return OrderResponse.from(order);
         } catch (OptimisticLockException e) {
-            throw new IllegalStateException("동시 주문이 많아 처리가 실패했습니다. 다시 시도해주세요.");
+            throw new ServiceException("409-1", "동시 주문이 많아 처리가 실패했습니다. 다시 시도해주세요.");
         }
     }
 
