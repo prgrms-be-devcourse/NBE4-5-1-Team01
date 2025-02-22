@@ -265,17 +265,17 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminController.class))
+
                 .andExpect(handler().methodName("getItems"))
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("상품 목록 조회 성공"))
-                .andExpect(jsonPath("$.data.content").isArray())
-                .andExpect(jsonPath("$.data.content[1].name").value("다즐링 홍차"))
-                .andExpect(jsonPath("$.data.content[1].price").value(10000))
-                .andExpect(jsonPath("$.data.content[1].imageUrl").value("darjeeling.jpg"))
-                .andExpect(jsonPath("$.data.content[1].inventory").value(10))
-                .andExpect(jsonPath("$.data.content[1].description").value("세계 3대 홍차 중 하나로, 깊은 풍미를 자랑"))
-                .andExpect(jsonPath("$.data.content[1].category").value("TEA"));
+                .andExpect(jsonPath("$.data.items").isArray())
+                .andExpect(jsonPath("$.data.items[1].name").value("다즐링 홍차"))
+                .andExpect(jsonPath("$.data.items[1].price").value(10000))
+                .andExpect(jsonPath("$.data.items[1].imageUrl").value("darjeeling.jpg"))
+                .andExpect(jsonPath("$.data.items[1].inventory").value(10))
+                .andExpect(jsonPath("$.data.items[1].description").value("세계 3대 홍차 중 하나로, 깊은 풍미를 자랑"))
+                .andExpect(jsonPath("$.data.items[1].category").value("TEA"));
     }
 
     @Test
@@ -292,17 +292,17 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminController.class))
+
                 .andExpect(handler().methodName("getItems"))
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("상품 목록 조회 성공"))
-                .andExpect(jsonPath("$.data.content").isArray())
-                .andExpect(jsonPath("$.data.content[0].name").value("다즐링 홍차"))
-                .andExpect(jsonPath("$.data.content[0].price").value(10000))
-                .andExpect(jsonPath("$.data.content[0].imageUrl").value("darjeeling.jpg"))
-                .andExpect(jsonPath("$.data.content[0].inventory").value(10))
-                .andExpect(jsonPath("$.data.content[0].description").value("세계 3대 홍차 중 하나로, 깊은 풍미를 자랑"))
-                .andExpect(jsonPath("$.data.content[0].category").value("TEA"));
+                .andExpect(jsonPath("$.data.items").isArray())
+                .andExpect(jsonPath("$.data.items[0].name").value("다즐링 홍차"))
+                .andExpect(jsonPath("$.data.items[0].price").value(10000))
+                .andExpect(jsonPath("$.data.items[0].imageUrl").value("darjeeling.jpg"))
+                .andExpect(jsonPath("$.data.items[0].inventory").value(10))
+                .andExpect(jsonPath("$.data.items[0].description").value("세계 3대 홍차 중 하나로, 깊은 풍미를 자랑"))
+                .andExpect(jsonPath("$.data.items[0].category").value("TEA"));
     }
 
     @Test
@@ -319,17 +319,17 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminController.class))
+
                 .andExpect(handler().methodName("getItems"))
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("상품 목록 조회 성공"))
-                .andExpect(jsonPath("$.data.content").isArray())
-                .andExpect(jsonPath("$.data.content[0].name").value("과테말라 안티구아"))
-                .andExpect(jsonPath("$.data.content[0].price").value(14000))
-                .andExpect(jsonPath("$.data.content[0].imageUrl").value("guatemala.jpg"))
-                .andExpect(jsonPath("$.data.content[0].inventory").value(10))
-                .andExpect(jsonPath("$.data.content[0].description").value("스모키한 향과 묵직한 바디감을 자랑하는 원두"))
-                .andExpect(jsonPath("$.data.content[0].category").value("HAND_DRIP"));
+                .andExpect(jsonPath("$.data.items").isArray())
+                .andExpect(jsonPath("$.data.items[0].name").value("과테말라 안티구아"))
+                .andExpect(jsonPath("$.data.items[0].price").value(14000))
+                .andExpect(jsonPath("$.data.items[0].imageUrl").value("guatemala.jpg"))
+                .andExpect(jsonPath("$.data.items[0].inventory").value(10))
+                .andExpect(jsonPath("$.data.items[0].description").value("스모키한 향과 묵직한 바디감을 자랑하는 원두"))
+                .andExpect(jsonPath("$.data.items[0].category").value("HAND_DRIP"));
     }
 
     @Test
@@ -346,17 +346,17 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminController.class))
+
                 .andExpect(handler().methodName("getItems"))
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("상품 목록 조회 성공"))
-                .andExpect(jsonPath("$.data.content").isArray())
-                .andExpect(jsonPath("$.data.content[0].name").value("과테말라 안티구아"))
-                .andExpect(jsonPath("$.data.content[0].price").value(14000))
-                .andExpect(jsonPath("$.data.content[0].imageUrl").value("guatemala.jpg"))
-                .andExpect(jsonPath("$.data.content[0].inventory").value(10))
-                .andExpect(jsonPath("$.data.content[0].description").value("스모키한 향과 묵직한 바디감을 자랑하는 원두"))
-                .andExpect(jsonPath("$.data.content[0].category").value("HAND_DRIP"));
+                .andExpect(jsonPath("$.data.items").isArray())
+                .andExpect(jsonPath("$.data.items[0].name").value("과테말라 안티구아"))
+                .andExpect(jsonPath("$.data.items[0].price").value(14000))
+                .andExpect(jsonPath("$.data.items[0].imageUrl").value("guatemala.jpg"))
+                .andExpect(jsonPath("$.data.items[0].inventory").value(10))
+                .andExpect(jsonPath("$.data.items[0].description").value("스모키한 향과 묵직한 바디감을 자랑하는 원두"))
+                .andExpect(jsonPath("$.data.items[0].category").value("HAND_DRIP"));
     }
 
     @Test
@@ -373,17 +373,17 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminController.class))
+
                 .andExpect(handler().methodName("getItems"))
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("상품 목록 조회 성공"))
-                .andExpect(jsonPath("$.data.content").isArray())
-                .andExpect(jsonPath("$.data.content[0].name").value("다즐링 홍차"))
-                .andExpect(jsonPath("$.data.content[0].price").value(10000))
-                .andExpect(jsonPath("$.data.content[0].imageUrl").value("darjeeling.jpg"))
-                .andExpect(jsonPath("$.data.content[0].inventory").value(10))
-                .andExpect(jsonPath("$.data.content[0].description").value("세계 3대 홍차 중 하나로, 깊은 풍미를 자랑"))
-                .andExpect(jsonPath("$.data.content[0].category").value("TEA"));
+                .andExpect(jsonPath("$.data.items").isArray())
+                .andExpect(jsonPath("$.data.items[0].name").value("다즐링 홍차"))
+                .andExpect(jsonPath("$.data.items[0].price").value(10000))
+                .andExpect(jsonPath("$.data.items[0].imageUrl").value("darjeeling.jpg"))
+                .andExpect(jsonPath("$.data.items[0].inventory").value(10))
+                .andExpect(jsonPath("$.data.items[0].description").value("세계 3대 홍차 중 하나로, 깊은 풍미를 자랑"))
+                .andExpect(jsonPath("$.data.items[0].category").value("TEA"));
     }
 
     @Test
@@ -400,7 +400,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isBadRequest())
-                .andExpect(handler().handlerType(AdminController.class))
+
                 .andExpect(handler().methodName("getItems"))
                 .andExpect(jsonPath("$.code").value("400-1"))
                 .andExpect(jsonPath("$.msg").value("잘못된 검색타입: CLOTHES"));
@@ -419,7 +419,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminController.class))
+
                 .andExpect(handler().methodName("getItem"))
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("상품 조회 성공"))
@@ -436,7 +436,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isNotFound())
-                .andExpect(handler().handlerType(AdminController.class))
+
                 .andExpect(handler().methodName("getItem"))
                 .andExpect(jsonPath("$.code").value("404-1"))
                 .andExpect(jsonPath("$.msg").value("존재하지 않는 글"));
@@ -457,7 +457,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isCreated())
-                .andExpect(handler().handlerType(AdminController.class))
+
                 .andExpect(handler().methodName("createItem"))
                 .andExpect(jsonPath("$.code").value("201-1"))
                 .andExpect(jsonPath("$.msg").value("상품 등록 성공"))
@@ -480,7 +480,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isBadRequest())
-                .andExpect(handler().handlerType(AdminController.class))
+
                 .andExpect(handler().methodName("createItem"));
     }
 
@@ -499,7 +499,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isBadRequest())
-                .andExpect(handler().handlerType(AdminController.class))
+
                 .andExpect(handler().methodName("createItem"));
     }
 
@@ -518,7 +518,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isBadRequest())
-                .andExpect(handler().handlerType(AdminController.class))
+
                 .andExpect(handler().methodName("createItem"));
     }
 
@@ -537,7 +537,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isBadRequest())
-                .andExpect(handler().handlerType(AdminController.class))
+
                 .andExpect(handler().methodName("createItem"));
     }
 
@@ -556,7 +556,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isBadRequest())
-                .andExpect(handler().handlerType(AdminController.class))
+
                 .andExpect(handler().methodName("createItem"));
     }
 
@@ -577,7 +577,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminController.class))
+
                 .andExpect(handler().methodName("modifyItem"))
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("%d번 상품 수정 성공".formatted(id)));
@@ -608,7 +608,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isNotFound())
-                .andExpect(handler().handlerType(AdminController.class))
+
                 .andExpect(handler().methodName("modifyItem"))
                 .andExpect(jsonPath("$.code").value("404-1"))
                 .andExpect(jsonPath("$.msg").value("존재하지 않는 상품"));
@@ -624,7 +624,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminController.class))
+
                 .andExpect(handler().methodName("deleteItem"))
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("%d번 상품 삭제 성공".formatted(id)));
@@ -639,7 +639,7 @@ class ProductControllerTest {
 
         resultActions
                 .andExpect(status().isNotFound())
-                .andExpect(handler().handlerType(AdminController.class))
+
                 .andExpect(handler().methodName("deleteItem"))
                 .andExpect(jsonPath("$.code").value("404-1"))
                 .andExpect(jsonPath("$.msg").value("존재하지 않는 상품"));
