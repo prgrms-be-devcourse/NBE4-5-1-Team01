@@ -4,22 +4,13 @@ import com.team1.beanstore.domain.order.OrderResponse;
 import com.team1.beanstore.domain.order.OrderResponseWithDetail;
 import com.team1.beanstore.domain.order.entity.OrderStatus;
 import com.team1.beanstore.domain.order.service.OrderService;
-import com.team1.beanstore.domain.product.ProductResponse;
 import com.team1.beanstore.domain.product.ProductService;
-import com.team1.beanstore.domain.product.SearchKeywordType;
-import com.team1.beanstore.domain.product.entity.ProductCategory;
 import com.team1.beanstore.global.dto.Empty;
 import com.team1.beanstore.global.dto.PageDto;
 import com.team1.beanstore.global.dto.RsData;
-import com.team1.beanstore.global.exception.ServiceException;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
