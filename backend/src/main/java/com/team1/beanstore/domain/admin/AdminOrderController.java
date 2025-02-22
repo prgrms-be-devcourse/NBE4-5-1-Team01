@@ -4,6 +4,7 @@ import com.team1.beanstore.domain.order.OrderResponse;
 import com.team1.beanstore.domain.order.OrderResponseWithDetail;
 import com.team1.beanstore.domain.order.entity.OrderStatus;
 import com.team1.beanstore.domain.order.service.OrderService;
+import com.team1.beanstore.domain.product.ProductService;
 import com.team1.beanstore.global.dto.Empty;
 import com.team1.beanstore.global.dto.PageDto;
 import com.team1.beanstore.global.dto.RsData;
@@ -14,8 +15,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/GCcoffee/admin")
-public class AdminController {
+public class AdminOrderController {
     private final OrderService orderService;
+    private final ProductService productService;
 
 
     @GetMapping("/orders")
@@ -60,4 +62,6 @@ public class AdminController {
         return new RsData<>("200-1",
                 "주문 삭제가 완료되었습니다.");
     }
+
+
 }

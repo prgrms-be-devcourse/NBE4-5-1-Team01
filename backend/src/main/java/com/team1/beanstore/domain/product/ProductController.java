@@ -1,6 +1,7 @@
 package com.team1.beanstore.domain.product;
 
 import com.team1.beanstore.domain.product.entity.ProductCategory;
+import com.team1.beanstore.global.dto.PageDto;
 import com.team1.beanstore.global.dto.RsData;
 import com.team1.beanstore.global.exception.ServiceException;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,7 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping("/items")
-    public RsData<Page<ProductResponse>> getProductsByCategory(
+    public RsData<PageDto<ProductResponse>> getProductsByCategory(
             @RequestParam ProductCategory category,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int pageSize,
@@ -29,11 +30,11 @@ public class ProductController {
         return new RsData<>(
                 "200-1",
                 "상품 조회 성공",
-                products);
+                new PageDto<>(products));
     }
 
     @GetMapping("/search")
-    public RsData<Page<ProductResponse>> searchProductsByName(
+    public RsData<PageDto<ProductResponse>> searchProductsByName(
             @RequestParam String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int pageSize,
@@ -47,6 +48,7 @@ public class ProductController {
         return new RsData<>(
                 "200-2",
                 "검색 결과 반환",
-                products);
+                new PageDto<>(products));
     }
+
 }

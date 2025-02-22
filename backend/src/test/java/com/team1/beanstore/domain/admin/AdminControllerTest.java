@@ -89,7 +89,7 @@ public class AdminControllerTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminController.class))
+                .andExpect(handler().handlerType(AdminOrderController.class))
                 .andExpect(handler().methodName("getOrders"))
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("주문 전체 조회가 완료되었습니다."))
@@ -108,7 +108,7 @@ public class AdminControllerTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminController.class))
+                .andExpect(handler().handlerType(AdminOrderController.class))
                 .andExpect(handler().methodName("getOrder"))
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("주문 상세 조회가 완료되었습니다."))
@@ -126,7 +126,7 @@ public class AdminControllerTest {
 
         resultActions
                 .andExpect(status().isNotFound())
-                .andExpect(handler().handlerType(AdminController.class))
+                .andExpect(handler().handlerType(AdminOrderController.class))
                 .andExpect(handler().methodName("getOrder"))
                 .andExpect(jsonPath("$.code").value("404-1"))
                 .andExpect(jsonPath("$.msg").value("존재하지 않는 주문입니다."));
@@ -152,7 +152,7 @@ public class AdminControllerTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminController.class))
+                .andExpect(handler().handlerType(AdminOrderController.class))
                 .andExpect(handler().methodName("modifyOrder"))
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("주문 수정이 완료되었습니다."))
@@ -179,7 +179,7 @@ public class AdminControllerTest {
 
         resultActions
                 .andExpect(status().isNotFound())
-                .andExpect(handler().handlerType(AdminController.class))
+                .andExpect(handler().handlerType(AdminOrderController.class))
                 .andExpect(handler().methodName("modifyOrder"))
                 .andExpect(jsonPath("$.code").value("404-1"))
                 .andExpect(jsonPath("$.msg").value("존재하지 않는 주문입니다."));
@@ -196,7 +196,7 @@ public class AdminControllerTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminController.class))
+                .andExpect(handler().handlerType(AdminOrderController.class))
                 .andExpect(handler().methodName("deleteOrder"))
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("주문 삭제가 완료되었습니다."));
@@ -213,7 +213,7 @@ public class AdminControllerTest {
 
         resultActions
                 .andExpect(status().isNotFound())
-                .andExpect(handler().handlerType(AdminController.class))
+                .andExpect(handler().handlerType(AdminOrderController.class))
                 .andExpect(handler().methodName("deleteOrder"))
                 .andExpect(jsonPath("$.code").value("404-1"))
                 .andExpect(jsonPath("$.msg").value("존재하지 않는 주문입니다."));
