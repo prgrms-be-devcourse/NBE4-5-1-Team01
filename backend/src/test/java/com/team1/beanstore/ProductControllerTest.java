@@ -1,8 +1,6 @@
 package com.team1.beanstore;
 
-import com.team1.beanstore.domain.admin.AdminController;
 import com.team1.beanstore.domain.admin.AuthTokenService;
-import com.team1.beanstore.domain.product.ProductController;
 import com.team1.beanstore.domain.product.ProductRepository;
 import com.team1.beanstore.domain.product.ProductService;
 import com.team1.beanstore.domain.product.entity.Product;
@@ -22,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.matchesPattern;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
