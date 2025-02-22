@@ -1,7 +1,7 @@
 package com.team1.beanstore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.team1.beanstore.domain.order.OrderRequest;
+import com.team1.beanstore.domain.order.dto.OrderRequest;
 import com.team1.beanstore.domain.product.ProductRepository;
 import com.team1.beanstore.domain.product.entity.Product;
 import com.team1.beanstore.domain.product.entity.ProductCategory;
