@@ -1,5 +1,6 @@
 package com.team1.beanstore.domain.product.entity;
 
+import com.team1.beanstore.domain.admin.dto.UpdateItemInfoReq;
 import com.team1.beanstore.global.exception.ServiceException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -46,20 +47,16 @@ public class Product {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    public void updateProduct(
-            String name,
-            int price,
-            String imageUrl,
-            int inventory,
-            String description,
-            ProductCategory category
-    ) {
-        this.name = name;
-        this.price = price;
+    public void updateInfo(UpdateItemInfoReq reqBody) {
+        this.name = reqBody.name();
+        this.price = reqBody.price();
+        this.inventory = reqBody.inventory();
+        this.description = reqBody.description();
+        this.category = reqBody.category();
+    }
+
+    public void updateImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
-        this.inventory = inventory;
-        this.description = description;
-        this.category = category;
     }
 
     public void decreaseInventory(int quantity) {
@@ -71,9 +68,5 @@ public class Product {
 
     public void delete() {
         this.deletedAt = LocalDateTime.now();
-    }
-
-    public boolean isDeleted() {
-        return this.deletedAt != null;
     }
 }

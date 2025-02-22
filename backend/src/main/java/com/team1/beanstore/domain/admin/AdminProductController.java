@@ -1,17 +1,17 @@
 package com.team1.beanstore.domain.admin;
 
-import com.team1.beanstore.domain.admin.dto.ItemReqBody;
+import com.team1.beanstore.domain.admin.dto.CreateItemReq;
+import com.team1.beanstore.domain.admin.dto.UpdateItemInfoReq;
 import com.team1.beanstore.domain.product.ProductResponse;
 import com.team1.beanstore.domain.product.ProductService;
 import com.team1.beanstore.domain.product.SearchKeywordType;
-import com.team1.beanstore.domain.product.entity.ProductCategory;
 import com.team1.beanstore.global.dto.PageDto;
 import com.team1.beanstore.global.dto.RsData;
-import com.team1.beanstore.global.exception.ServiceException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -52,48 +52,34 @@ public class AdminProductController {
     }
 
     @Operation(summary = "상품 등록", description = "새로운 상품을 등록합니다.")
-    @PostMapping("/item")
-    public RsData<Map<String, Long>> createItem(@RequestBody @Valid ItemReqBody reqBody) {
-        ProductCategory categoryEnum;
-        try {
-            categoryEnum = ProductCategory.from(reqBody.category().toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new ServiceException("400-1", "잘못된 카테고리 값입니다: " + reqBody.category());
-        }
-
-        Map<String, Long> response =  productService.createItem(reqBody.name(), reqBody.price(), reqBody.imageUrl(), reqBody.inventory(), reqBody.description(), categoryEnum);
-
-        return new RsData<>(
-                "201-1",
-                "상품 등록 성공",
-                response);
+    @PostMapping(value = "/item", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public RsData<Map<String, Long>> createItem(@RequestBody @Valid CreateItemReq reqBody) {
+        Map<String, Long> response = productService.createItem(reqBody);
+        return new RsData<>("201-1", "상품 등록 성공", response);
     }
 
     @Operation(summary = "상품 수정", description = "기존 상품의 정보를 수정합니다.")
     @PatchMapping("/item/{id}")
-    public RsData<Map<String, Long>> modifyItem(
-            @PathVariable Long id,
-            @RequestBody ItemReqBody reqBody
-    ) {
-        ProductCategory categoryEnum;
-        try {
-            categoryEnum = ProductCategory.from(reqBody.category().toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new ServiceException("400-1", "잘못된 카테고리 값입니다: " + reqBody.category());
-        }
-
-        Map<String, Long> response =  productService.modifyItem(id, reqBody.name(), reqBody.price(), reqBody.imageUrl(), reqBody.inventory(), reqBody.description(), categoryEnum);
+    public RsData<Map<String, Long>> modifyItem(@PathVariable Long id, @RequestBody @Valid UpdateItemInfoReq reqBody) {
+        Map<String, Long> response = productService.modifyItem(id, reqBody);
         return new RsData<>(
                 "200-1",
-                "%s번 상품 수정 성공".formatted(id),
+                "%s번 상품 수정 성공".formatted(id), response);
+    }
+
+    @Operation(summary = "상품 이미지 수정", description = "기존 상품의 이미지 URL을 수정합니다.")
+    @PatchMapping("/item/{id}/image")
+    public RsData<Map<String, String>> modifyItemImage(@PathVariable Long id, @RequestParam String imageUrl) {
+        Map<String, String> response = productService.modifyItemImage(id, imageUrl);
+        return new RsData<>(
+                "200-2",
+                "%s번 상품 이미지 수정 성공".formatted(id),
                 response);
     }
 
     @Operation(summary = "상품 삭제", description = "상품을 삭제합니다.")
     @DeleteMapping("/delete/{id}")
-    public RsData<Map<String, Long>> deleteItem(
-            @PathVariable Long id
-    ) {
+    public RsData<Map<String, Long>> deleteItem(@PathVariable Long id) {
         Map<String, Long> response =  productService.deleteItem(id);
 
         return new RsData<>(
