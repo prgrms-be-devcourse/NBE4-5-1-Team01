@@ -48,15 +48,12 @@ export default async function Page({
     }
   ) ;
 
-  const rsData = response.data!!;
+  const rsData = response.data;
 
   return (
     <ClientPage
       isLogin={isLogin}
       rsData={rsData}
-      totalItems={rsData.data.totalItems}
-      totalPages={rsData.data.totalPages}
-      curPageNo={rsData.data.curPageNo}
       pageSize={pageSize}
       keyword={keyword}
       keywordType={keywordType}

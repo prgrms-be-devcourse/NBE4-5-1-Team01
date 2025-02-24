@@ -9,36 +9,35 @@ import client from "@/lib/backend/client";
 
 export default function ClientPage({
   isLogin,
-  rsData = { data: { totalPages: 0, items: [] } },
+  rsData = { 
+    data: { 
+      totalPages: 0, 
+      curPageNo: 1, 
+      items: [] 
+  }},
   keywordType,
   keyword,
-  totalPages,
-  totalItems,
-  curPageNo,
   pageSize,
   page,
 }: {
   isLogin: boolean;
-  rsData?: { data: { totalPages: number; items: any[] } };
+  rsData?: { 
+    data: { 
+      totalPages: number; 
+      curPageNo: number; 
+      items: any[] 
+  }};
   keywordType?: "name" | "description" | "category";
   keyword?: string;
-  totalPages: number;
-  totalItems: number;
-  curPageNo: number;
   pageSize?: number;
   page?: number;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-
   const { items = [] } = rsData?.data ?? {};
 
-  // 관리자 페이지 이동처리
-  useEffect(() => {
-    if (!isLogin) {
-      router.replace("/admin/login");
-    }
-  }, [isLogin, router]);
+  const totalPages = rsData.data.totalPages;
+  const curPageNo = rsData.data.curPageNo;
 
   // 현재 URL에서 검색 및 페이지네이션 정보를 가져옴
   const [currentKeyword, setCurrentKeyword] = useState(keyword || "");
@@ -67,13 +66,14 @@ export default function ClientPage({
     description: "",
     category: "HAND_DRIP",
   });
+  const [tempImageUrl, setTempImageUrl] = useState("");
 
   // 비로그인 시 관리자 페이지 이동처리
-  // useEffect(() => {
-  //   if (!isLogin) {
-  //     router.replace("/admin/login");
-  //   }
-  // }, [isLogin, router]);
+  useEffect(() => {
+    if (!isLogin) {
+      router.replace("/admin/login");
+    }
+  }, [isLogin, router]);
 
   useEffect(() => {
     const newPage = searchParams.get("page");
@@ -107,6 +107,7 @@ export default function ClientPage({
   // 팝업 열기
   const openModal = (item: any) => {
     setSelectedItem(item);
+    setTempImageUrl(item.imageUrl);
     setIsModalOpen(true);
   };
 
@@ -149,7 +150,6 @@ export default function ClientPage({
       });
 
       const rsData = response.data;
-      console.log("rsData: ", rsData)
       if (!rsData || !rsData.data || !rsData.data.items) {
         throw new Error("데이터를 불러오는 데 실패했습니다.");
       }
@@ -166,7 +166,6 @@ export default function ClientPage({
     try {
       setLoading(true);
       setError("");
-      console.log("isLogin: ", isLogin)
       const response = await client.POST("/GCcoffee/admin/item", {
         credentials: "include",
         body: {
@@ -237,7 +236,11 @@ export default function ClientPage({
 
   // 상품 수정 핸들러
   const handleUpdateItem = async (id: number) => {
-    if (!selectedItem.name || !selectedItem.description || !selectedItem.imageUrl || !selectedItem.category || selectedItem.price < 1) return;
+    if (!selectedItem.name || !selectedItem.description || !tempImageUrl || !selectedItem.category || selectedItem.price < 1) return;
+    const updatedItem = {
+      ...selectedItem,
+      imageUrl: tempImageUrl,
+    };
     try {
       setLoading(true);
       setError("");
@@ -249,12 +252,12 @@ export default function ClientPage({
         },
         credentials: "include",
         body: {
-          name: selectedItem.name,
-          price: selectedItem.price,
-          imageUrl: selectedItem.imageUrl,
-          inventory: selectedItem.inventory,
-          description: selectedItem.description,
-          category: selectedItem.category,
+          name: updatedItem.name,
+          price: updatedItem.price,
+          imageUrl: updatedItem.imageUrl,
+          inventory: updatedItem.inventory,
+          description: updatedItem.description,
+          category: updatedItem.category,
         },
       });
 
@@ -409,10 +412,8 @@ export default function ClientPage({
             <label className="block text-sm font-semibold">이미지 URL</label>
             <Input
               type="text"
-              value={selectedItem.imageUrl}
-              onChange={(e) =>
-                setSelectedItem({ ...selectedItem, imageUrl: e.target.value })
-              }
+              value={tempImageUrl}
+              onChange={(e) => setTempImageUrl(e.target.value )}
               className="mb-2"
             />
             <label className="block text-sm font-semibold">재고</label>
