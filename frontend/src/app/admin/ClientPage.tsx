@@ -50,19 +50,24 @@ export default function ClientPage({
     setCurrentPage(1); // 검색 시 첫 페이지로 리셋
 
     // 필터링된 결과 업데이트
-    const newFilteredItems = items.filter((item) =>
-      item[currentKeywordType]
-        .toLowerCase()
-        .includes(currentKeyword.toLowerCase())
+    const newFilteredItems = items.filter(
+      (item) =>
+        item[currentKeywordType]
+          .toLowerCase()
+          .includes(currentKeyword.toLowerCase()) &&
+        (currentCategory === "all" || item.category === currentCategory)
     );
 
     setFilteredItems(newFilteredItems);
 
     // URL 업데이트
     router.push(
-      `/admin?keywordType=${currentKeywordType}&keyword=${currentKeyword}&pageSize=${currentPageSize}&page=1`
+      `/admin?keywordType=${currentKeywordType}&keyword=${currentKeyword}&category=${currentCategory}&pageSize=${currentPageSize}&page=1`
     );
   };
+
+  //카테고리 분류
+  const [currentCategory, setCurrentCategory] = useState("all");
 
   // 페이징 연산
   const totalPages = Math.ceil(filteredItems.length / currentPageSize);
@@ -160,6 +165,25 @@ export default function ClientPage({
             <Button type="submit">검색</Button>
           </div>
         </form>
+        <div className="flex gap-3 my-3">
+          {["all", "HAND_DRIP", "DECAF"].map((category) => (
+            <button
+              key={category}
+              onClick={() => setCurrentCategory(category)}
+              className={`px-4 py-2 rounded border transition ${
+                currentCategory === category
+                  ? "bg-blue-500 text-white"
+                  : "bg-white text-blue-500"
+              }`}
+            >
+              {category === "all"
+                ? "모두"
+                : category === "HAND_DRIP"
+                ? "핸드드립"
+                : "디카페인"}
+            </button>
+          ))}
+        </div>
 
         {/* 상품 리스트 */}
         <ul className="space-y-4">
