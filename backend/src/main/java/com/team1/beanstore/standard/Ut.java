@@ -49,5 +49,23 @@ public class Ut {
                     .parse(token)
                     .getPayload();
         }
+
+        public static boolean isExpired(String keyString, String token) {
+            try {
+                SecretKey secretKey = Keys.hmacShaKeyFor(keyString.getBytes());
+
+                Date expiration = Jwts.parser()
+                        .verifyWith(secretKey)
+                        .build()
+                        .parseSignedClaims(token)
+                        .getPayload()
+                        .getExpiration();
+
+                return expiration.before(new Date()); // 🔥 현재 시간보다 만료 시간이 이전이면 만료됨
+
+            } catch (Exception e) {
+                return true; // 🔥 만료된 토큰이거나 잘못된 토큰일 경우 true 반환
+            }
+        }
     }
 }

@@ -23,11 +23,6 @@ public class DevInitData {
 
     private static final String API_URL = "http://localhost:8080/v3/api-docs";
     private static final String API_JSON_FILE = "apiV1.json";
-    private static final List<String> TS_GEN_COMMAND = List.of(
-            "cmd.exe", "/c",
-            "npx --package typescript --package openapi-typescript --package punycode openapi-typescript "
-                    + API_JSON_FILE + " -o ../frontend/src/lib/backend/apiV1/schema.d.ts"
-    );
 
     @Bean
     public ApplicationRunner devApplicationRunner() {
@@ -38,7 +33,8 @@ public class DevInitData {
     }
 
     private void executeCommand() {
-        ProcessBuilder processBuilder = new ProcessBuilder(TS_GEN_COMMAND);
+        List<String> tsGenCommand = getTsGenCommand();
+        ProcessBuilder processBuilder = new ProcessBuilder(tsGenCommand);
         processBuilder.redirectErrorStream(true);
 
         try {
@@ -50,7 +46,7 @@ public class DevInitData {
             int exitCode = process.waitFor();
             System.out.println("프로세스 종료 코드: " + exitCode);
         } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("명령 실행 중 오류 발생: " + TS_GEN_COMMAND, e);
+            throw new RuntimeException("명령 실행 중 오류 발생: " + tsGenCommand, e);
         }
     }
 
@@ -69,6 +65,19 @@ public class DevInitData {
             System.out.println("JSON 데이터가 " + filePath.toAbsolutePath() + "에 저장되었습니다.");
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException("API JSON 파일 생성 중 오류 발생: " + API_JSON_FILE, e);
+        }
+    }
+
+    // ✅ OS에 따라 명령어 설정
+    private static List<String> getTsGenCommand() {
+        String os = System.getProperty("os.name").toLowerCase();
+
+        if (os.contains("win")) {
+            return List.of("cmd.exe", "/c", "npx --package typescript --package openapi-typescript --package punycode openapi-typescript "
+                    + API_JSON_FILE + " -o ../frontend/src/lib/backend/apiV1/schema.d.ts");
+        } else {
+            return List.of("sh", "-c", "npx --package typescript --package openapi-typescript --package punycode openapi-typescript "
+                    + API_JSON_FILE + " -o ../frontend/src/lib/backend/apiV1/schema.d.ts");
         }
     }
 }

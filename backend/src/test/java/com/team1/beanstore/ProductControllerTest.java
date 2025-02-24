@@ -49,7 +49,7 @@ class ProductControllerTest {
     @BeforeEach
     void setUp() {
         //login
-        token = authTokenService.genToken();
+        token = authTokenService.genAccessToken();
 
 
         productRepository.save(Product.builder()
