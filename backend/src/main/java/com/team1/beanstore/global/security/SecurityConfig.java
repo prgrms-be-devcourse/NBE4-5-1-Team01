@@ -16,7 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-//    private final JwtAuthenticationFilter jwtFilter;
+    private final JwtAuthenticationFilter jwtFilter;
     private final CorsConfig corsConfig;
 
     @Bean
@@ -28,11 +28,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/GCcoffee/admin/login").permitAll()
-                        .requestMatchers("/GCcoffee/admin/**").permitAll()
-//                        .requestMatchers("/GCcoffee/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/GCcoffee/admin/**").hasRole("ADMIN")
                         .requestMatchers("/GCcoffee/**").permitAll()
-                );
-//                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                )
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
