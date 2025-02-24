@@ -26,6 +26,20 @@ export default function ClinetLayout({
 }>) {
   const isAdmin = me.role === "admin";
 
+  async function handleLogout(e: React.MouseEvent<HTMLAnchorElement>) {
+    e.preventDefault();
+    const response = await client.DELETE("/GCcoffee/admin/logout", {
+      credentials: "include",
+    });
+
+    if (response.error) {
+      alert(response.error.msg);
+      return;
+    }
+
+    window.location.href = "/";
+  }
+
   return (
     <html lang="en" className={`${fontVariable}`}>
       <body className={`min-h-[100dvh] flex flex-col ${fontClassName}`}>
@@ -56,6 +70,11 @@ export default function ClinetLayout({
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Link href="/admin/order">관리자 주문 관리 페이지</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link href="" onClick={handleLogout}>
+                      로그아웃
+                    </Link>
                   </DropdownMenuItem>
                 </>
               )}
