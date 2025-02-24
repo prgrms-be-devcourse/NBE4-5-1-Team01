@@ -5,7 +5,6 @@ import com.team1.beanstore.global.dto.RsData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,7 +36,7 @@ public class AdminAuthController {
     @Operation(summary = "관리자 로그인", description = "관리자가 로그인하여 JWT 를 발급받습니다.")
     @ApiResponse(responseCode = "200", description = "로그인 성공")
     @ApiResponse(responseCode = "401", description = "비밀번호가 틀렸습니다.")
-    public RsData<String> login(@Valid @RequestBody LoginReqBody body, HttpServletResponse response) {
+    public RsData<String> login(@Valid @RequestBody LoginReqBody body) {
         String password = body.password();
 
         // 비밀번호가 틀리면 오류 처리
