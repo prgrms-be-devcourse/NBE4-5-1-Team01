@@ -60,6 +60,9 @@ export default function ClinetLayout({
               <DropdownMenuItem>
                 <Link href="/admin">관리자 페이지</Link>
               </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link href="/admin/order">관리자 주문 관리 페이지</Link>
+              </DropdownMenuItem>
               {isLogined && (
                 <DropdownMenuItem>
                   {/* <Link href="" onClick={handleLogout}> */}
