@@ -10,36 +10,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStore } from "@fortawesome/free-solid-svg-icons";
+import client from "@/lib/backend/client";
 //import router from "next/router";
 
-//어드민 로그인 환경 구현 시 주석부분 처리 요망
 export default function ClinetLayout({
   children,
-  //me,
+  me,
   fontVariable,
   fontClassName,
 }: Readonly<{
   children: React.ReactNode;
-  //me: components["schemas"]["MemberDto"];
+  me: { id: number; role: string };
   fontVariable: string;
   fontClassName: string;
 }>) {
-  //const isLogined = me.id !== 0;
-  const isLogined = false;
-
-  //   async function handleLogout(e: React.MouseEvent<HTMLAnchorElement>) {
-  //     e.preventDefault();
-  //     const response = await admin.DELETE("/amin/logout", {
-  //       credentials: "include",
-  //     });
-
-  //     if (response.error) {
-  //       alert(response.error.msg);
-  //       return;
-  //     }
-
-  //     router.push(`/`);
-  //   }
+  const isAdmin = me.role === "admin";
 
   return (
     <html lang="en" className={`${fontVariable}`}>
@@ -57,17 +42,22 @@ export default function ClinetLayout({
               <DropdownMenuItem>
                 <Link href="/store">구매자 페이지</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link href="/admin">관리자 페이지</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link href="/admin/order">관리자 주문 관리 페이지</Link>
-              </DropdownMenuItem>
-              {isLogined && (
+
+              {!isAdmin && (
                 <DropdownMenuItem>
-                  {/* <Link href="" onClick={handleLogout}> */}
-                  <Link href="">로그아웃</Link>
+                  <Link href="/admin/login">관리자 로그인</Link>
                 </DropdownMenuItem>
+              )}
+
+              {isAdmin && (
+                <>
+                  <DropdownMenuItem>
+                    <Link href="/admin">관리자 상품 관리 페이지</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link href="/admin/order">관리자 주문 관리 페이지</Link>
+                  </DropdownMenuItem>
+                </>
               )}
             </DropdownMenuContent>
           </DropdownMenu>

@@ -22,15 +22,15 @@ export default function ClientPage({
   page?: number;
 }) {
   const router = useRouter();
- // empty rsData 처리
+  // empty rsData 처리
   const { items = [] } = rsData?.data ?? {};
 
   // 관리자 페이지 이동처리 - 쿠키로그인 되면 추가가
-  // useEffect(() => {
-  //   if (!isLogin) {
-  //     router.replace("/admin/login");
-  //   }
-  // }, [isLogin, router]);
+  useEffect(() => {
+    if (!isLogin) {
+      router.replace("/admin/login");
+    }
+  }, [isLogin, router]);
 
   // 현재 URL에서 검색 및 페이지네이션 정보를 가져옴
   const [currentKeyword, setCurrentKeyword] = useState(keyword || "");
