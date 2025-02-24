@@ -424,7 +424,7 @@ export default function ClientPage({
             />
             <div className="mt-4 flex gap-3">
               <Button
-                onClick={() => handleUpdateItem(selectedItem)}
+                onClick={() => handleUpdateItem(selectedItem.id)}
                 className="mt-3 w-full bg-blue-500 hover:bg-blue-600"
               >
                 수정 완료
