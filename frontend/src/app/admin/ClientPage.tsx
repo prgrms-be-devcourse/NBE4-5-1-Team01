@@ -45,11 +45,8 @@ export default function ClientPage({
   const [currentKeywordType, setCurrentKeywordType] = useState<
     "name" | "description" | "category"
   >(keywordType || "name");
-  const [currentCategoryType, setCurrentCategoryType] = useState<
-    "HAND_DRIP" | "DECAF" | "TEA" | ""
-  >("");
   const [isCategory, setIsCategory] = useState(false);
-  const [currentPageSize] = useState(pageSize || 10);
+  const [currentPageSize, setCurrentPageSize] = useState(pageSize || 10);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   // 팝업 상태 관리
@@ -100,6 +97,12 @@ export default function ClientPage({
       setIsCategory(false);
     }
   }, [currentKeywordType, isCategory]);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    setCurrentPageSize(parseInt(e.target.value));
+  };
 
   // 팝업 열기
   const openModal = (item: any) => {
@@ -155,7 +158,7 @@ export default function ClientPage({
     }
   };
 
-  // 새 상품 추가 핸들러
+  // 상품 추가 핸들러
   const handleAddItem = async () => {
     if (!newItem.name || !newItem.description || !newItem.imageUrl) return;
     try {
@@ -174,9 +177,9 @@ export default function ClientPage({
       });
 
       if (response.error) {
-        throw new Error("주문 상태 업데이트 실패");
+        throw new Error("상품 수정 실패");
       } else {
-        alert("주문 상태가 업데이트되었습니다.");
+        alert("상품이 추가가되었습니다.");
         closeModal();
         router.refresh();
         setNewItem({
@@ -196,9 +199,7 @@ export default function ClientPage({
   };
 
   // 상품 삭제 핸들러
-  // 주문 삭제 핸들러
   const handleDeleteItem = async (id: number) => {
-    console.log("아이디ㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣ: ", id)
     if (!window.confirm("정말 이 상품을 삭제하시겠습니까?")) return;
 
     try {
@@ -214,10 +215,10 @@ export default function ClientPage({
       });
 
       if (response.error) {
-        throw new Error("주문 삭제에 실패했습니다.");
+        throw new Error("상품품 삭제에 실패했습니다.");
       }
 
-      alert("주문이 삭제되었습니다.");
+      alert("상품품이 삭제되었습니다.");
       closeModal();
       router.refresh();
     } catch (err: any) {
@@ -229,13 +230,10 @@ export default function ClientPage({
 
   // 상품 수정 핸들러
   const handleUpdateItem = async (id: number) => {
-    console.log("상품 수정 핸들러 작동");
-    if (!selectedItem.name || !selectedItem.description || !selectedItem.imageUrl) return;
-    console.log("상품 수정 핸들러 작동 시작")
+    if (!selectedItem.name || !selectedItem.description || !selectedItem.imageUrl || !selectedItem.category || selectedItem.price < 1) return;
     try {
       setLoading(true);
       setError("");
-      console.log("selectedItem: ", selectedItem);
       const response = await client.PATCH("/GCcoffee/admin/item/{id}", {
         params: {
           path: {
@@ -253,22 +251,17 @@ export default function ClientPage({
         },
       });
 
-      console.log("상품 수정 response 가져옴옴")
-  
       if (response.error) {
-        throw new Error("상품 업데이트 실패");
+        throw new Error("상품 수정 실패");
       } else {
-        alert("상품 정보가 업데이트 되었습니다.");
+        alert("상품 정보가 수정되었습니다.");
         closeModal();
         router.refresh();
         closeModal();
       }
   } catch (e: any) {
-    console.log("상품 수정 핸들러 실패")
-  
       setError(e.message);
     } finally {
-    console.log("상품 수정 핸들러 작동 파이널리")
       setLoading(false);
     }
   };
@@ -277,10 +270,18 @@ export default function ClientPage({
     <div className="flex gap-10 p-10">
       <div className="w-2/3">
         <h1 className="text-2xl font-bold mb-4">상품 목록</h1>
-
-        {/* 검색 필터 */}
         <form onSubmit={handleSearchSubmit} className="mb-5">
           <div className="flex gap-3 items-center">
+          <select
+              name="pageSize"
+              className="border p-2 rounded"
+              onChange={handleChange}
+              value={currentPageSize}
+            >
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="15">15</option>
+            </select>
             <select
               name="keywordType"
               value={currentKeywordType}
@@ -292,8 +293,7 @@ export default function ClientPage({
               <option value="name">상품 이름</option>
               <option value="description">내용</option>
               <option value="category">카테고리</option>
-            </select>
-            
+            </select>            
             {currentKeywordType !== "category" ? <Input
               type="text"
               placeholder="검색어 입력"
@@ -317,8 +317,10 @@ export default function ClientPage({
           </div>
         </form>
 
-        {/* 상품 리스트 */}
-        <ul className="space-y-4">
+        {loading && <p className="text-blue-500">불러오는 중...</p>}
+        {error && <p className="text-red-500">{error}</p>}
+
+        {!loading && <ul className="space-y-4">
           {items.map((item: any) => (
             <li key={item.id} className="border rounded-lg p-4 shadow-md">
               <div
@@ -333,7 +335,7 @@ export default function ClientPage({
                 <div>
                   <h3 className="text-lg font-semibold">{item.name}</h3>
                   <p className="text-sm text-gray-500">
-                    상품 ID: {item.itemId}
+                    재고: {item.inventory}
                   </p>
                   <p className="text-sm text-gray-500">
                     상품 정보: {`${item.description}`}
@@ -345,7 +347,7 @@ export default function ClientPage({
               </div>
             </li>
           ))}
-        </ul>
+        </ul>}
         <div className="flex justify-center mt-4 space-x-2">
           {Array.from({ length: totalPages }, (_, index) => index + 1).map(
             (pageNum) => (
@@ -364,10 +366,15 @@ export default function ClientPage({
         </div>
       </div>
 
-      {/* 상세 정보 팝업, 수정 기능 */}
       {isModalOpen && selectedItem && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-5 rounded-lg shadow-lg w-1/2">
+        <div 
+          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+          onClick={closeModal}
+        >
+          <div 
+            className="bg-white p-5 rounded-lg shadow-lg w-1/2"
+            onClick={(e) => e.stopPropagation()}
+            >
             <h2 className="text-xl font-bold mb-4">상품 수정</h2>
             <img
               src={selectedItem.imageUrl}
@@ -422,6 +429,22 @@ export default function ClientPage({
               }
               className="mb-2"
             />
+            <label className="block text-sm font-semibold">카테고리</label>
+            <select
+              name="keywordType"
+              value={selectedItem.category}
+              onChange={(e) =>
+                setSelectedItem({
+                  ...selectedItem,
+                  category: e.target.value as "HAND_DRIP" | "DECAF" | "TEA",
+                })
+              }
+              className="border p-2 rounded"
+            >
+            <option value="HAND_DRIP">핸드 드립</option>
+            <option value="DECAF">디카페인</option>
+            <option value="TEA">티</option>
+          </select>
             <div className="mt-4 flex gap-3">
               <Button
                 onClick={() => handleUpdateItem(selectedItem.id)}

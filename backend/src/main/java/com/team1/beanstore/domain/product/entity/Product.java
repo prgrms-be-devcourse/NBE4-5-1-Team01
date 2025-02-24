@@ -52,6 +52,7 @@ public class Product {
         this.price = reqBody.price();
         this.inventory = reqBody.inventory();
         this.description = reqBody.description();
+        this.imageUrl = reqBody.imageUrl();
         this.category = reqBody.category();
     }
 
