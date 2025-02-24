@@ -31,7 +31,7 @@ public class Product {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
-    @Column(nullable = false, length = 500)
+    @Column(nullable = false, length = 5000)
     private String imageUrl;
 
     @Column(nullable = false)

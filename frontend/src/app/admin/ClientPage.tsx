@@ -33,7 +33,7 @@ export default function ClientPage({
 
   const { items = [] } = rsData?.data ?? {};
 
-  // 관리자 페이지 이동처리 - 쿠키로그인 되면 추가가
+  // 관리자 페이지 이동처리
   useEffect(() => {
     if (!isLogin) {
       router.replace("/admin/login");
@@ -137,6 +137,7 @@ export default function ClientPage({
       const pageToFetch = pageOverride || page;
 
       const response = await client.GET("/GCcoffee/admin/items", {
+        credentials: "include",
         params: {
           query: {
             keyword,
@@ -148,6 +149,7 @@ export default function ClientPage({
       });
 
       const rsData = response.data;
+      console.log("rsData: ", rsData)
       if (!rsData || !rsData.data || !rsData.data.items) {
         throw new Error("데이터를 불러오는 데 실패했습니다.");
       }
@@ -164,6 +166,7 @@ export default function ClientPage({
     try {
       setLoading(true);
       setError("");
+      console.log("isLogin: ", isLogin)
       const response = await client.POST("/GCcoffee/admin/item", {
         credentials: "include",
         body: {
@@ -179,9 +182,12 @@ export default function ClientPage({
       if (response.error) {
         throw new Error("상품 수정 실패");
       } else {
-        alert("상품이 추가가되었습니다.");
+        alert("상품이 추가되었습니다.");
         closeModal();
-        router.refresh();
+        // router.refresh();
+        router.push(
+          `/admin?keywordType=${currentKeywordType}&keyword=${currentKeyword}&pageSize=${currentPageSize}`
+        );
         setNewItem({
           name: "",
           price: 0,
@@ -207,6 +213,7 @@ export default function ClientPage({
       setError("");
 
       const response = await client.DELETE("/GCcoffee/admin/delete/{id}", {
+        credentials: "include",
         params: {
           path: {
             id,
