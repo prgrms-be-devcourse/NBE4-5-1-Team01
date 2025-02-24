@@ -109,11 +109,10 @@ public class ProductService {
     }
 
 
-    @Transactional(readOnly = true)
+    @Transactional()
     public Map<String, Long> deleteItem(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ServiceException("404-1", "존재하지 않는 상품"));
-
         product.delete();
         Long deletedId = product.getId();
         return Map.of("id", deletedId);
