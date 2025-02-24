@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 import ClientPage from "./ClientPage";
 import client from "@/lib/backend/client";
+import { redirect } from "next/navigation";
 
 export default async function Page({
   searchParams,
@@ -20,13 +21,13 @@ export default async function Page({
     sort = "desc",
   } = await searchParams;
 
-  // const myCookie = await cookies();
-  // const { isLogin } = parseAccessToken(myCookie.get("accessToken"));
+  const myCookie = await cookies();
+  const { isLogin } = parseAccessToken(myCookie.get("accessToken"));
 
-  // //권한 없을 시 관리자 로그인 페이지로 이동
-  // if (!isLogin) {
-  //   <ClientPage isLogin={isLogin} />;
-  // }
+  //권한 없을 시 관리자 로그인 페이지로 이동
+  if (!isLogin) {
+    redirect("/admin/login");
+  }
 
   const response = await client.GET("/GCcoffee/admin/orders", {
     params: {
@@ -37,12 +38,20 @@ export default async function Page({
         sort,
       },
     },
+    headers: {
+      cookie: myCookie.toString(),
+    },
   });
 
-  const rsData = response.data!!;
+  if (response.error) {
+    return <div>response.error.msg</div>;
+  }
+
+  const rsData = response.data;
 
   return (
     <ClientPage
+      isLogin={isLogin}
       rsData={rsData}
       keyword={keyword}
       pageSize={pageSize}

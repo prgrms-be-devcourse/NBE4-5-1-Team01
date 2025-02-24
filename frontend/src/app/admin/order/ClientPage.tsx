@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
@@ -9,12 +9,14 @@ import { components } from "@/lib/backend/apiV1/schema";
 import client from "@/lib/backend/client";
 
 export default function ClientPage({
+  isLogin,
   rsData,
   keyword,
   pageSize,
   page,
   sort,
 }: {
+  isLogin: boolean;
   rsData: components["schemas"]["RsDataPageDtoOrderResponseWithDetail"];
   keyword: string;
   pageSize: number;
@@ -40,11 +42,11 @@ export default function ClientPage({
   });
 
   // 관리자 페이지 이동처리 - 쿠키로그인 되면 추가가
-  // useEffect(() => {
-  //   if (!isLogin) {
-  //     router.replace("/admin/login");
-  //   }
-  // }, [isLogin, router]);
+  useEffect(() => {
+    if (!isLogin) {
+      router.replace("/admin/login");
+    }
+  }, [isLogin, router]);
 
   // 팝업 열기
   const openModal = (item: any) => {
@@ -71,6 +73,7 @@ export default function ClientPage({
             id,
           },
         },
+        credentials: "include",
       });
 
       const rsData = response.data;
@@ -121,6 +124,7 @@ export default function ClientPage({
             id,
           },
         },
+        credentials: "include",
       });
 
       if (response.error) {
@@ -155,6 +159,7 @@ export default function ClientPage({
         body: {
           orderStatus: selectedStatus,
         },
+        credentials: "include",
       });
 
       if (response.error) {
