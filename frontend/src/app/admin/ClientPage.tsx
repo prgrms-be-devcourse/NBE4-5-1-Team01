@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import client from "@/lib/backend/client";
 
 export default function ClientPage({
   isLogin,
@@ -22,7 +23,6 @@ export default function ClientPage({
   page?: number;
 }) {
   const router = useRouter();
-  // empty rsData 처리
   const { items = [] } = rsData?.data ?? {};
 
   // 관리자 페이지 이동처리 - 쿠키로그인 되면 추가가
@@ -39,6 +39,8 @@ export default function ClientPage({
   >(keywordType || "name");
   const [currentPageSize] = useState(pageSize || 10);
   const [currentPage, setCurrentPage] = useState(page || 1);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // 검색 실행 시 필터링된 상품을 저장
   const [filteredItems, setFilteredItems] = useState(
@@ -95,23 +97,66 @@ export default function ClientPage({
     setSelectedItem(null);
   };
   // 상품 추가 상태 관리
-  const [newItem, setNewItem] = useState({
+  const [newItem, setNewItem] = useState<{
+    name: string;
+    price: number;
+    imageUrl: string;
+    inventory: number;
+    description: string;
+    category: "HAND_DRIP" | "DECAF" | "TEA" | undefined;
+  }>({
     name: "",
-    description: "",
+    price: 0,
     imageUrl: "",
-    published: false,
+    inventory: 0,
+    description: "",
+    category: undefined,
   });
 
   // 새 상품 추가 핸들러
-  const handleAddItem = () => {
+  const handleAddItem = async () => {
+    console.log("------------------------등록 시작-----------------------")
     if (!newItem.name || !newItem.description || !newItem.imageUrl) return;
-    const newItemData = {
-      id: items.length + 1,
-      itemId: `item-${items.length + 1}`,
-      ...newItem,
-    };
-    rsData.data.items.push(newItemData);
-    setNewItem({ name: "", description: "", imageUrl: "", published: false });
+    try {
+      setLoading(true);
+      setError("");
+      const response = await client.POST("/GCcoffee/admin/item", {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: {
+          name: newItem.name,
+          price: newItem.price,
+          imageUrl: newItem.imageUrl,
+          inventory: newItem.inventory,
+          description: newItem.description,
+          category: newItem.category,
+        },
+      });
+
+      console.log("--------------------------------등록 response: ", response)
+
+      if (response.error) {
+        throw new Error("주문 상태 업데이트 실패");
+      } else {
+        alert("주문 상태가 업데이트되었습니다.");
+        closeModal();
+        router.refresh();
+        setNewItem({ 
+          name: "", 
+          price: 0, 
+          imageUrl: "",
+          inventory: 0,
+          description: "", 
+          category: undefined 
+        });
+      }
+    } catch(e:any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // 상품 삭제 핸들러
@@ -131,7 +176,7 @@ export default function ClientPage({
   };
 
   return (
-    <div className="flex gap-10">
+    <div className="flex gap-10 p-10">
       <div className="w-2/3">
         <h1 className="text-2xl font-bold mb-4">상품 목록</h1>
 
@@ -181,9 +226,6 @@ export default function ClientPage({
                   </p>
                   <p className="text-sm text-gray-500">
                     상품 정보: {`${item.description}`}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    공개 여부: {`${item.published}`}
                   </p>
                 </div>
               </div>
@@ -298,12 +340,10 @@ export default function ClientPage({
           className="mb-2"
         />
         <Input
-          type="text"
-          placeholder="상품 설명"
-          value={newItem.description}
-          onChange={(e) =>
-            setNewItem({ ...newItem, description: e.target.value })
-          }
+          type="number"
+          placeholder="상품 가격"
+          value={newItem.price === 0 ? "" : newItem.price}
+          onChange={(e) => setNewItem({ ...newItem, price: parseFloat(e.target.value) || 0 })}
           className="mb-2"
         />
         <Input
@@ -313,15 +353,36 @@ export default function ClientPage({
           onChange={(e) => setNewItem({ ...newItem, imageUrl: e.target.value })}
           className="mb-2"
         />
+        <Input
+          type="number"
+          placeholder="재고"
+          value={newItem.inventory === 0 ? "" : newItem.inventory}
+          onChange={(e) => setNewItem({ ...newItem, inventory: parseFloat(e.target.value) || 0 })}
+          className="mb-2"
+        />
+        <Input
+          type="text"
+          placeholder="상품 설명"
+          value={newItem.description}
+          onChange={(e) =>
+            setNewItem({ ...newItem, description: e.target.value })
+          }
+          className="mb-2"
+        />
         <div className="flex items-center gap-2 mb-2">
-          <input
-            type="checkbox"
-            checked={newItem.published}
+          <label>카테고리: </label>
+          <select
+            name="keywordType"
+            value={newItem.category}
             onChange={(e) =>
-              setNewItem({ ...newItem, published: e.target.checked })
+              setNewItem({...newItem, category: e.target.value as "HAND_DRIP" | "DECAF" | "TEA"})
             }
-          />
-          <label>공개 여부</label>
+            className="border p-2 rounded"
+          >
+            <option value="HAND_DRIP">핸드 드립</option>
+            <option value="DECAF">디카페인</option>
+            <option value="TEA">티</option>
+          </select>
         </div>
         <Button onClick={handleAddItem} className="w-full">
           추가
