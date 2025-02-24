@@ -27,9 +27,9 @@ export default async function Page({
   const { isLogin } = parseAccessToken(myCookie.get("accessToken"));
 
   //권한 없을 시 관리자 로그인 페이지로 이동
-  if (!isLogin) {
-    <ClientPage isLogin={isLogin} />;
-  }
+  // if (!isLogin) {
+  //   <ClientPage isLogin={isLogin} />;
+  // }
 
   const response = await client.GET(
     "/GCcoffee/admin/items",
@@ -48,12 +48,15 @@ export default async function Page({
     }
   ) ;
 
-  const rsData = response.data;
+  const rsData = response.data!!;
 
   return (
     <ClientPage
       isLogin={isLogin}
       rsData={rsData}
+      totalItems={rsData.data.totalItems}
+      totalPages={rsData.data.totalPages}
+      curPageNo={rsData.data.curPageNo}
       pageSize={pageSize}
       keyword={keyword}
       keywordType={keywordType}

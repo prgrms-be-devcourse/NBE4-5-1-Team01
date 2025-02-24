@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import client from "@/lib/backend/client";
 
@@ -12,17 +12,25 @@ export default function ClientPage({
   rsData = { data: { totalPages: 0, items: [] } },
   keywordType,
   keyword,
+  totalPages,
+  totalItems,
+  curPageNo,
   pageSize,
   page,
 }: {
   isLogin: boolean;
   rsData?: { data: { totalPages: number; items: any[] } };
-  keywordType?: "name" | "description";
+  keywordType?: "name" | "description" | "category";
   keyword?: string;
+  totalPages: number;
+  totalItems: number;
+  curPageNo: number;
   pageSize?: number;
   page?: number;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
   const { items = [] } = rsData?.data ?? {};
 
   // 관리자 페이지 이동처리 - 쿠키로그인 되면 추가가
@@ -35,55 +43,63 @@ export default function ClientPage({
   // 현재 URL에서 검색 및 페이지네이션 정보를 가져옴
   const [currentKeyword, setCurrentKeyword] = useState(keyword || "");
   const [currentKeywordType, setCurrentKeywordType] = useState<
-    "name" | "description"
+    "name" | "description" | "category"
   >(keywordType || "name");
+  const [currentCategoryType, setCurrentCategoryType] = useState<
+    "HAND_DRIP" | "DECAF" | "TEA" | ""
+  >("");
+  const [isCategory, setIsCategory] = useState(false);
   const [currentPageSize] = useState(pageSize || 10);
-  const [currentPage, setCurrentPage] = useState(page || 1);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  // 검색 실행 시 필터링된 상품을 저장
-  const [filteredItems, setFilteredItems] = useState(
-    items.filter((item) => item.name)
-  );
-  // 검색 핸들러
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setCurrentPage(1); // 검색 시 첫 페이지로 리셋
-
-    // 필터링된 결과 업데이트
-    const newFilteredItems = items.filter((item) =>
-      item[currentKeywordType]
-        .toLowerCase()
-        .includes(currentKeyword.toLowerCase())
-    );
-
-    setFilteredItems(newFilteredItems);
-
-    // URL 업데이트
-    router.push(
-      `/admin?keywordType=${currentKeywordType}&keyword=${currentKeyword}&pageSize=${currentPageSize}&page=1`
-    );
-  };
-
-  // 페이징 연산
-  const totalPages = Math.ceil(filteredItems.length / currentPageSize);
-  const currentPageItems = filteredItems.slice(
-    (currentPage - 1) * currentPageSize,
-    currentPage * currentPageSize
-  );
-
-  //  페이징 핸들러
-  const handlePageChange = (nowPage: number) => {
-    setCurrentPage(nowPage);
-    router.push(
-      `/admin?keywordType=${currentKeywordType}&keyword=${currentKeyword}&pageSize=${currentPageSize}&page=${nowPage}`
-    );
-  };
-
   // 팝업 상태 관리
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
+  const [newItem, setNewItem] = useState<{
+    name: string;
+    price: number;
+    imageUrl: string;
+    inventory: number;
+    description: string;
+    category: "HAND_DRIP" | "DECAF" | "TEA";
+  }>({
+    name: "",
+    price: 0,
+    imageUrl: "",
+    inventory: 0,
+    description: "",
+    category: "HAND_DRIP",
+  });
+
+  // 비로그인 시 관리자 페이지 이동처리
+  // useEffect(() => {
+  //   if (!isLogin) {
+  //     router.replace("/admin/login");
+  //   }
+  // }, [isLogin, router]);
+
+  useEffect(() => {
+    const newPage = searchParams.get("page");
+
+    if (newPage) {
+      fetchProductItems(); // 페이지 번호가 변경되면 상품 목록 다시 불러오기
+    }
+  }, [searchParams, rsData]);
+
+  useEffect(() => {
+    if (currentKeywordType === "category") {
+      if (!isCategory) {
+        setCurrentKeyword("HAND_DRIP");
+        setIsCategory(true);
+      }
+    } else if (isCategory) {
+      // "category"에서 다른 값으로 변경될 때만 실행되도록 함
+      setCurrentKeyword((prevKeyword) => {
+        return prevKeyword === "HAND_DRIP" || prevKeyword === "DECAF" || prevKeyword === "TEA" ? "" : prevKeyword;
+      });
+      setIsCategory(false);
+    }
+  }, [currentKeywordType, isCategory]);
 
   // 팝업 열기
   const openModal = (item: any) => {
@@ -96,34 +112,56 @@ export default function ClientPage({
     setIsModalOpen(false);
     setSelectedItem(null);
   };
-  // 상품 추가 상태 관리
-  const [newItem, setNewItem] = useState<{
-    name: string;
-    price: number;
-    imageUrl: string;
-    inventory: number;
-    description: string;
-    category: "HAND_DRIP" | "DECAF" | "TEA" | undefined;
-  }>({
-    name: "",
-    price: 0,
-    imageUrl: "",
-    inventory: 0,
-    description: "",
-    category: undefined,
-  });
+
+  // 검색 핸들러
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    fetchProductItems();
+
+    // URL 업데이트
+      router.push(
+        `/admin?keywordType=${currentKeywordType}&keyword=${currentKeyword}&pageSize=${currentPageSize}`
+      );
+  };
+
+  // 상품 목록 가져오기
+  const fetchProductItems = async (pageOverride?: number) => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const pageToFetch = pageOverride || page;
+
+      const response = await client.GET("/GCcoffee/admin/items", {
+        params: {
+          query: {
+            keyword,
+            keywordType,
+            pageSize,
+            page: pageToFetch,
+          },
+        },
+      });
+
+      const rsData = response.data;
+      if (!rsData || !rsData.data || !rsData.data.items) {
+        throw new Error("데이터를 불러오는 데 실패했습니다.");
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // 새 상품 추가 핸들러
   const handleAddItem = async () => {
-    console.log("------------------------등록 시작-----------------------")
     if (!newItem.name || !newItem.description || !newItem.imageUrl) return;
     try {
       setLoading(true);
       setError("");
       const response = await client.POST("/GCcoffee/admin/item", {
-        headers: {
-          "Content-Type": "application/json",
-        },
         credentials: "include",
         body: {
           name: newItem.name,
@@ -135,24 +173,22 @@ export default function ClientPage({
         },
       });
 
-      console.log("--------------------------------등록 response: ", response)
-
       if (response.error) {
         throw new Error("주문 상태 업데이트 실패");
       } else {
         alert("주문 상태가 업데이트되었습니다.");
         closeModal();
         router.refresh();
-        setNewItem({ 
-          name: "", 
-          price: 0, 
+        setNewItem({
+          name: "",
+          price: 0,
           imageUrl: "",
           inventory: 0,
-          description: "", 
-          category: undefined 
+          description: "",
+          category: "HAND_DRIP",
         });
       }
-    } catch(e:any) {
+    } catch (e: any) {
       setError(e.message);
     } finally {
       setLoading(false);
@@ -193,22 +229,35 @@ export default function ClientPage({
             >
               <option value="name">상품 이름</option>
               <option value="description">내용</option>
+              <option value="category">카테고리</option>
             </select>
-            <Input
+            
+            {currentKeywordType !== "category" ? <Input
               type="text"
               placeholder="검색어 입력"
               name="keyword"
               value={currentKeyword}
-              onChange={(e) => setCurrentKeyword(e.target.value)}
+              onChange={(e) => {
+                setCurrentKeyword(e.target.value)
+              }}
               className="w-[200px]"
-            />
+            /> : <select
+            name="searchKeywordType"
+            value={currentKeyword}
+            onChange={(e) => setCurrentKeyword(e.target.value as "HAND_DRIP" | "DECAF" | "TEA")}
+            className="border p-2 rounded"
+          >
+            <option value="HAND_DRIP">핸드 드립</option>
+            <option value="DECAF">디카페인</option>
+            <option value="TEA">티</option>
+          </select>}
             <Button type="submit">검색</Button>
           </div>
         </form>
 
         {/* 상품 리스트 */}
         <ul className="space-y-4">
-          {currentPageItems.map((item) => (
+          {items.map((item: any) => (
             <li key={item.id} className="border rounded-lg p-4 shadow-md">
               <div
                 className="flex items-center cursor-pointer"
@@ -232,17 +281,15 @@ export default function ClientPage({
             </li>
           ))}
         </ul>
-
-        {/* 페이징 */}
         <div className="flex justify-center mt-4 space-x-2">
           {Array.from({ length: totalPages }, (_, index) => index + 1).map(
             (pageNum) => (
               <Link
                 key={pageNum}
-                href="#"
-                onClick={() => handlePageChange(pageNum)}
+                href={`/admin?keywordType=${currentKeywordType}&keyword=${currentKeyword}&pageSize=${currentPageSize}&page=${pageNum}`}
+                aria-disabled={curPageNo === pageNum}
                 className={`px-2 py-1 transition-colors duration-300 ${
-                  pageNum === currentPage ? "text-red-500" : "text-blue-500"
+                  pageNum === curPageNo ? "text-gray-500" : "text-blue-500"
                 }`}
               >
                 {pageNum}
@@ -293,7 +340,7 @@ export default function ClientPage({
               className="mb-2"
             />
             <div className="flex items-center gap-2 mb-2">
-              <input
+              {/* <input
                 type="checkbox"
                 checked={selectedItem.published}
                 onChange={(e) =>
@@ -303,7 +350,7 @@ export default function ClientPage({
                   })
                 }
               />
-              <label>공개 여부</label>
+              <label>공개 여부</label> */}
             </div>
             <div className="mt-4 flex gap-3">
               <Button
@@ -343,7 +390,9 @@ export default function ClientPage({
           type="number"
           placeholder="상품 가격"
           value={newItem.price === 0 ? "" : newItem.price}
-          onChange={(e) => setNewItem({ ...newItem, price: parseFloat(e.target.value) || 0 })}
+          onChange={(e) =>
+            setNewItem({ ...newItem, price: parseFloat(e.target.value) || 0 })
+          }
           className="mb-2"
         />
         <Input
@@ -357,7 +406,12 @@ export default function ClientPage({
           type="number"
           placeholder="재고"
           value={newItem.inventory === 0 ? "" : newItem.inventory}
-          onChange={(e) => setNewItem({ ...newItem, inventory: parseFloat(e.target.value) || 0 })}
+          onChange={(e) =>
+            setNewItem({
+              ...newItem,
+              inventory: parseFloat(e.target.value) || 0,
+            })
+          }
           className="mb-2"
         />
         <Input
@@ -375,7 +429,10 @@ export default function ClientPage({
             name="keywordType"
             value={newItem.category}
             onChange={(e) =>
-              setNewItem({...newItem, category: e.target.value as "HAND_DRIP" | "DECAF" | "TEA"})
+              setNewItem({
+                ...newItem,
+                category: e.target.value as "HAND_DRIP" | "DECAF" | "TEA",
+              })
             }
             className="border p-2 rounded"
           >
