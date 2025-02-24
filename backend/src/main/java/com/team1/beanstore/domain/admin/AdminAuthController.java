@@ -1,9 +1,11 @@
 package com.team1.beanstore.domain.admin;
 
+import com.team1.beanstore.global.Rq;
 import com.team1.beanstore.global.dto.RsData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +24,7 @@ public class AdminAuthController {
 
     private final PasswordEncoder passwordEncoder;
     private final AuthTokenService authTokenService;
+    private final Rq rq;
 
 
     @Value("${admin.password}")
@@ -34,25 +37,31 @@ public class AdminAuthController {
     @Operation(summary = "관리자 로그인", description = "관리자가 로그인하여 JWT 를 발급받습니다.")
     @ApiResponse(responseCode = "200", description = "로그인 성공")
     @ApiResponse(responseCode = "401", description = "비밀번호가 틀렸습니다.")
-    public RsData<String> login(@Valid @RequestBody LoginReqBody body) {
+    public RsData<String> login(@Valid @RequestBody LoginReqBody body, HttpServletResponse response) {
         String password = body.password();
 
-        // 비밀번호가 맞으면 토큰 발급
-        if (passwordEncoder.matches(password, encodedPassword)) {
-            // JWT 발급
-            String jwtToken = authTokenService.genToken();
-
+        // 비밀번호가 틀리면 오류 처리
+        if (!passwordEncoder.matches(password, encodedPassword)) {
             return new RsData<>(
-                    "200-1",
-                    "로그인 성공",
-                    jwtToken
+                    "401-1",
+                    "비밀번호가 틀렸습니다."
             );
         }
 
+        // accessToken, refreshToken 발급
+        String accessToken = authTokenService.genAccessToken();
+        String refreshToken = authTokenService.genRefreshToken();
+
+        // 쿠키 및 헤더 설정
+        rq.setLogin(accessToken, refreshToken);
+
         return new RsData<>(
-                "401-1",
-                "비밀번호가 틀렸습니다."
+                "200-1",
+                "로그인 성공",
+                accessToken
         );
+
+
     }
 
 }

@@ -1,6 +1,10 @@
 package com.team1.beanstore.global.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team1.beanstore.domain.admin.AuthTokenService;
+import com.team1.beanstore.global.Rq;
+import com.team1.beanstore.global.dto.Empty;
+import com.team1.beanstore.global.dto.RsData;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,15 +23,45 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final AuthTokenService authTokenService;
+    private final Rq rq;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = authToken(request);
+        String token = getAccessToken();
 
         if (token == null) {
             filterChain.doFilter(request, response);
+            return;
         }
 
+        if (!authTokenService.isValid(token)) {
+            sendErrorResponse(response,"401-2","유효하지 않은 토큰입니다.");
+            return;
+        }
+
+        if (authTokenService.isExpiredToken(token)) {
+            String refreshToken = rq.getCookie("refreshToken");
+
+            if (refreshToken != null && authTokenService.isValid(refreshToken)) {
+                String newAccessToken = authTokenService.genAccessToken();
+                rq.addCookie("accessToken", newAccessToken);
+
+                setAuthentication(newAccessToken);
+            }
+            else {
+                sendErrorResponse(response, "401-1", "세션이 만료되었습니다. 다시 로그인해주세요.");
+                return;
+            }
+        }
+        else {
+            setAuthentication(token);
+        }
+
+
+        filterChain.doFilter(request, response);
+    }
+
+    private void setAuthentication(String token) {
         String role = authTokenService.getRoleFromToken(token);
         if (role.equals("admin")) {
             UsernamePasswordAuthenticationToken auth =
@@ -38,8 +72,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
-
-        filterChain.doFilter(request, response);
     }
 
     @Override
@@ -48,12 +80,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return path.equals("/GCcoffee/admin/login") || !path.startsWith("/GCcoffee/admin/");
     }
 
-    private String authToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
-            return null;
+    private String getAccessToken() {
+        String bearerToken = rq.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
         }
 
-        return bearerToken.substring(7);
+        return rq.getCookie("accessToken");
+    }
+
+    private void sendErrorResponse(HttpServletResponse response, String code, String message) throws IOException {
+        RsData<Empty> errorResponse = new RsData<>(code, message);
+        response.setStatus(errorResponse.getStatusCode());
+        response.setContentType("application/json; charset=UTF-8");
+        response.getWriter().write(new ObjectMapper().writeValueAsString(errorResponse));
     }
 }
