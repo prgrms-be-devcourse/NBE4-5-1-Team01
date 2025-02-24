@@ -34,31 +34,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (!authTokenService.isValid(token)) {
-            sendErrorResponse(response,"401-2","유효하지 않은 토큰입니다.");
+        if (authTokenService.isValid(token) && !authTokenService.isExpiredToken(token)) {
+            setAuthentication(token);
+            filterChain.doFilter(request, response);
             return;
         }
 
-        if (authTokenService.isExpiredToken(token)) {
-            String refreshToken = rq.getCookie("refreshToken");
+        String refreshToken = rq.getCookie("refreshToken");
+        if (refreshToken != null && authTokenService.isValid(refreshToken)) {
 
-            if (refreshToken != null && authTokenService.isValid(refreshToken)) {
-                String newAccessToken = authTokenService.genAccessToken();
-                rq.addCookie("accessToken", newAccessToken);
+            String newAccessToken = authTokenService.genAccessToken();
+            rq.addCookie("accessToken", newAccessToken);
+            setAuthentication(newAccessToken);
 
-                setAuthentication(newAccessToken);
-            }
-            else {
-                sendErrorResponse(response, "401-1", "세션이 만료되었습니다. 다시 로그인해주세요.");
-                return;
-            }
-        }
-        else {
-            setAuthentication(token);
+            filterChain.doFilter(request, response);
+            return;
         }
 
 
-        filterChain.doFilter(request, response);
+        sendErrorResponse(response, "401-1", "세션이 만료되었습니다. 다시 로그인해주세요.");
     }
 
     private void setAuthentication(String token) {
