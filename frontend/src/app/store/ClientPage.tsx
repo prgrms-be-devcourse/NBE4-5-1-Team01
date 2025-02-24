@@ -51,7 +51,7 @@ export default function ClientPage({
 
     // URL 업데이트
     router.push(
-      `/admin?keywordType=${currentKeywordType}&keyword=${currentKeyword}&pageSize=${currentPageSize}&page=1`
+      `/store?keywordType=${currentKeywordType}&keyword=${currentKeyword}&pageSize=${currentPageSize}&page=1`
     );
   };
 
