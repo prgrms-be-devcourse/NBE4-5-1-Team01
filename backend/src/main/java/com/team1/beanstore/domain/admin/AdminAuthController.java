@@ -1,6 +1,7 @@
 package com.team1.beanstore.domain.admin;
 
 import com.team1.beanstore.global.Rq;
+import com.team1.beanstore.global.dto.Empty;
 import com.team1.beanstore.global.dto.RsData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -10,10 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/GCcoffee/admin")
@@ -61,6 +59,18 @@ public class AdminAuthController {
         );
 
 
+    }
+
+    @Operation(summary = "관리자 로그아웃", description = "로그아웃 시 쿠키 삭제")
+    @DeleteMapping("/logout")
+    public RsData<Empty> logout() {
+        rq.removeCookie("accessToken");
+        rq.removeCookie("refreshToken");
+
+        return new RsData<>(
+                "200-1",
+                "로그아웃 되었습니다."
+        );
     }
 
 }
