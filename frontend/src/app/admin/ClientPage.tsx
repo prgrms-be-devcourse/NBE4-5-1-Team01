@@ -196,19 +196,81 @@ export default function ClientPage({
   };
 
   // 상품 삭제 핸들러
-  const handleDeleteItem = (itemId: string) => {
-    rsData.data.items = rsData.data.items.filter(
-      (item) => item.itemId !== itemId
-    );
-    closeModal();
+  // 주문 삭제 핸들러
+  const handleDeleteItem = async (id: number) => {
+    console.log("아이디ㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣ: ", id)
+    if (!window.confirm("정말 이 상품을 삭제하시겠습니까?")) return;
+
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await client.DELETE("/GCcoffee/admin/delete/{id}", {
+        params: {
+          path: {
+            id,
+          },
+        },
+      });
+
+      if (response.error) {
+        throw new Error("주문 삭제에 실패했습니다.");
+      }
+
+      alert("주문이 삭제되었습니다.");
+      closeModal();
+      router.refresh();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // 상품 수정 핸들러
-  const handleUpdateItem = (updatedItem: any) => {
-    rsData.data.items = rsData.data.items.map((item) =>
-      item.itemId === updatedItem.itemId ? updatedItem : item
-    );
-    closeModal();
+  const handleUpdateItem = async (id: number) => {
+    console.log("상품 수정 핸들러 작동");
+    if (!selectedItem.name || !selectedItem.description || !selectedItem.imageUrl) return;
+    console.log("상품 수정 핸들러 작동 시작")
+    try {
+      setLoading(true);
+      setError("");
+      console.log("selectedItem: ", selectedItem);
+      const response = await client.PATCH("/GCcoffee/admin/item/{id}", {
+        params: {
+          path: {
+            id,
+          },
+        },
+        credentials: "include",
+        body: {
+          name: selectedItem.name,
+          price: selectedItem.price,
+          imageUrl: selectedItem.imageUrl,
+          inventory: selectedItem.inventory,
+          description: selectedItem.description,
+          category: selectedItem.category,
+        },
+      });
+
+      console.log("상품 수정 response 가져옴옴")
+  
+      if (response.error) {
+        throw new Error("상품 업데이트 실패");
+      } else {
+        alert("상품 정보가 업데이트 되었습니다.");
+        closeModal();
+        router.refresh();
+        closeModal();
+      }
+  } catch (e: any) {
+    console.log("상품 수정 핸들러 실패")
+  
+      setError(e.message);
+    } finally {
+    console.log("상품 수정 핸들러 작동 파이널리")
+      setLoading(false);
+    }
   };
 
   return (
@@ -276,6 +338,9 @@ export default function ClientPage({
                   <p className="text-sm text-gray-500">
                     상품 정보: {`${item.description}`}
                   </p>
+                  <p className="text-sm text-gray-500">
+                    카테고리: {`${item.category === "HAND_DRIP" ? "핸드 드립" : item.category === "DECAF" ? "디카페인" : "티"}`}
+                  </p>
                 </div>
               </div>
             </li>
@@ -309,7 +374,7 @@ export default function ClientPage({
               alt={selectedItem.name}
               className="w-full h-40 object-cover rounded-lg mb-4"
             />
-            <label className="block text-sm font-semibold">상품 이름</label>
+            <label className="block text-sm font-semibold">이름</label>
             <Input
               type="text"
               value={selectedItem.name}
@@ -318,15 +383,12 @@ export default function ClientPage({
               }
               className="mb-2"
             />
-            <label className="block text-sm font-semibold">상품 설명</label>
+            <label className="block text-sm font-semibold">가격</label>
             <Input
-              type="text"
-              value={selectedItem.description}
+              type="number"
+              value={selectedItem.price === 0 ? "" : selectedItem.price}
               onChange={(e) =>
-                setSelectedItem({
-                  ...selectedItem,
-                  description: e.target.value,
-                })
+                setSelectedItem({ ...selectedItem, price: parseFloat(e.target.value) || 0 })
               }
               className="mb-2"
             />
@@ -339,19 +401,27 @@ export default function ClientPage({
               }
               className="mb-2"
             />
-            <div className="flex items-center gap-2 mb-2">
-              {/* <input
-                type="checkbox"
-                checked={selectedItem.published}
-                onChange={(e) =>
-                  setSelectedItem({
-                    ...selectedItem,
-                    published: e.target.checked,
-                  })
-                }
-              />
-              <label>공개 여부</label> */}
-            </div>
+            <label className="block text-sm font-semibold">재고</label>
+            <Input
+              type="number"
+              value={selectedItem.inventory === 0 ? "" : selectedItem.inventory}
+              onChange={(e) =>
+                setSelectedItem({ ...selectedItem, inventory: parseFloat(e.target.value) || 0 })
+              }
+              className="mb-2"
+            />
+            <label className="block text-sm font-semibold">설명</label>
+            <Input
+              type="text"
+              value={selectedItem.description}
+              onChange={(e) =>
+                setSelectedItem({
+                  ...selectedItem,
+                  description: e.target.value,
+                })
+              }
+              className="mb-2"
+            />
             <div className="mt-4 flex gap-3">
               <Button
                 onClick={() => handleUpdateItem(selectedItem)}
@@ -360,7 +430,7 @@ export default function ClientPage({
                 수정 완료
               </Button>
               <Button
-                onClick={() => handleDeleteItem(selectedItem.itemId)}
+                onClick={() => handleDeleteItem(selectedItem.id)}
                 className="mt-3 w-full bg-gray-500 hover:bg-gray-600"
               >
                 삭제
