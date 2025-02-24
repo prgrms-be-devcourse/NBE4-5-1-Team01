@@ -40,11 +40,19 @@ public class AdminControllerTest {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private AuthTokenService authTokenService;
+
+
     private OrderResponse orderResponse1;
     private OrderResponse orderResponse2;
 
+    private String token;
+
     @BeforeEach
     void before() {
+        token = authTokenService.genAccessToken();
+
         Product product1 = productRepository.saveAndFlush(Product.builder()
                 .name("에티오피아 예가체프")
                 .description("과일 향과 부드러운 산미가 특징인 원두")
@@ -84,7 +92,8 @@ public class AdminControllerTest {
     void getOrders1() throws Exception {
 
         ResultActions resultActions = mvc
-                .perform(get("/GCcoffee/admin/orders"))
+                .perform(get("/GCcoffee/admin/orders")
+                        .header("Authorization", "Bearer " + token))
                 .andDo(print());
 
         resultActions
@@ -103,7 +112,8 @@ public class AdminControllerTest {
         long id = orderResponse1.orderId();
 
         ResultActions resultActions = mvc
-                .perform(get("/GCcoffee/admin/orders/%d".formatted(id)))
+                .perform(get("/GCcoffee/admin/orders/%d".formatted(id))
+                        .header("Authorization", "Bearer " + token))
                 .andDo(print());
 
         resultActions
@@ -124,7 +134,8 @@ public class AdminControllerTest {
         long id = 100000;
 
         ResultActions resultActions = mvc
-                .perform(get("/GCcoffee/admin/orders/%d".formatted(id)))
+                .perform(get("/GCcoffee/admin/orders/%d".formatted(id))
+                        .header("Authorization", "Bearer " + token))
                 .andDo(print());
 
         resultActions
@@ -143,6 +154,7 @@ public class AdminControllerTest {
 
         ResultActions resultActions = mvc
                 .perform(patch("/GCcoffee/admin/orders/%d".formatted(id))
+                        .header("Authorization", "Bearer " + token)
                         .content("""
                                 {
                                     "orderStatus": "%s"
@@ -171,6 +183,7 @@ public class AdminControllerTest {
 
         ResultActions resultActions = mvc
                 .perform(patch("/GCcoffee/admin/orders/%d".formatted(id))
+                        .header("Authorization", "Bearer " + token)
                         .content("""
                                 {
                                     "orderStatus": "%s"
@@ -195,7 +208,8 @@ public class AdminControllerTest {
         long id = orderResponse1.orderId();
 
         ResultActions resultActions = mvc
-                .perform(delete("/GCcoffee/admin/orders/%d".formatted(id)))
+                .perform(delete("/GCcoffee/admin/orders/%d".formatted(id))
+                        .header("Authorization", "Bearer " + token))
                 .andDo(print());
 
         resultActions
@@ -212,7 +226,8 @@ public class AdminControllerTest {
         long id = 100000;
 
         ResultActions resultActions = mvc
-                .perform(delete("/GCcoffee/admin/orders/%d".formatted(id)))
+                .perform(delete("/GCcoffee/admin/orders/%d".formatted(id))
+                        .header("Authorization", "Bearer " + token))
                 .andDo(print());
 
         resultActions
