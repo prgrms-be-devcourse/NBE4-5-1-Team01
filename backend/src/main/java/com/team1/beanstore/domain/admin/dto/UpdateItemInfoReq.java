@@ -10,5 +10,6 @@ public record UpdateItemInfoReq(
         @Min(1) int price,
         int inventory,
         @NonNull @NotBlank String description,
+        @NonNull @NotBlank String imageUrl,
         @NonNull ProductCategory category
 ) {}

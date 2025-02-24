@@ -66,7 +66,7 @@ public class ProductService {
     }
 
     public Optional<Product> getLatestItem() {
-        return productRepository.findTopByOrderByIdDesc();
+        return productRepository.findTopByDeletedAtIsNullOrderByIdDesc();
     }
 
     @Transactional
@@ -76,13 +76,13 @@ public class ProductService {
 
         String likeKeyword = "%" + keyword + "%";
         if (SearchKeywordType.id == keywordType) {
-            Page<ProductResponse> mapperAll = productRepository.findAll(pageRequest).map(ProductResponse::from);
+            Page<ProductResponse> mapperAll = productRepository.findAllByDeletedAtIsNull(pageRequest).map(ProductResponse::from);
             return new PageDto<>(mapperAll);
         } else if (SearchKeywordType.name == keywordType) {
-            Page<ProductResponse> mapperName = productRepository.findByNameLike(likeKeyword, pageRequest).map(ProductResponse::from);
+            Page<ProductResponse> mapperName = productRepository.findByNameLikeAndDeletedAtIsNull(likeKeyword, pageRequest).map(ProductResponse::from);
             return new PageDto<>(mapperName);
         } else if (SearchKeywordType.description == keywordType) {
-            Page<ProductResponse> mapperDescription = productRepository.findByDescriptionLike(likeKeyword, pageRequest).map(ProductResponse::from);
+            Page<ProductResponse> mapperDescription = productRepository.findByDescriptionLikeAndDeletedAtIsNull(likeKeyword, pageRequest).map(ProductResponse::from);
             return new PageDto<>(mapperDescription);
         }
 
@@ -102,15 +102,17 @@ public class ProductService {
         Product product = productRepository.findById(id).orElseThrow(
                 () -> new ServiceException("404-1", "존재하지 않는 글")
         );
+        if (product.getDeletedAt() != null) {
+            throw new ServiceException("404-1", "존재하지 않는 글");
+        }
         return ProductResponse.from(product);
     }
 
 
-    @Transactional(readOnly = true)
+    @Transactional()
     public Map<String, Long> deleteItem(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ServiceException("404-1", "존재하지 않는 상품"));
-
         product.delete();
         Long deletedId = product.getId();
         return Map.of("id", deletedId);

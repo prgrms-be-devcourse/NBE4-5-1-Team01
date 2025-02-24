@@ -24,9 +24,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) AND p.deletedAt IS NULL")
     Page<Product> searchByName(@Param("keyword") String keyword, Pageable pageable);
 
-    Page<Product> findByNameLike(String likeKeyword, Pageable pageable);
+    Page<Product> findAllByDeletedAtIsNull(Pageable pageable);
 
-    Page<Product> findByDescriptionLike(String likeKeyword, Pageable pageable);
+    Page<Product> findByNameLikeAndDeletedAtIsNull(String likeKeyword, Pageable pageable);
 
-    Optional<Product> findTopByOrderByIdDesc();
+    Page<Product> findByDescriptionLikeAndDeletedAtIsNull(String likeKeyword, Pageable pageable);
+
+    Optional<Product> findTopByDeletedAtIsNullOrderByIdDesc();
 }

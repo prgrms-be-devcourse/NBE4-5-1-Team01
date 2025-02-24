@@ -30,7 +30,7 @@ export default function ClinetPage() {
       return;
     }
 
-    document.cookie = `token=${response.data}; path=/; secure; HttpOnly`;
+    // document.cookie = `token=${response.data}; path=/; secure; HttpOnly`;
 
     router.push("/admin");
     window.location.href = "/admin";

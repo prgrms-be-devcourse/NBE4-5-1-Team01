@@ -52,7 +52,8 @@ public class AdminProductController {
     }
 
     @Operation(summary = "상품 등록", description = "새로운 상품을 등록합니다.")
-    @PostMapping(value = "/item", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/item")
+//    @PostMapping(value = "/item", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public RsData<Map<String, Long>> createItem(@RequestBody @Valid CreateItemReq reqBody) {
         Map<String, Long> response = productService.createItem(reqBody);
         return new RsData<>("201-1", "상품 등록 성공", response);

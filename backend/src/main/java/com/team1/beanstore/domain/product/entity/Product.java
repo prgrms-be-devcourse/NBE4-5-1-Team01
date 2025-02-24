@@ -31,7 +31,7 @@ public class Product {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
-    @Column(nullable = false, length = 500)
+    @Column(nullable = false, length = 5000)
     private String imageUrl;
 
     @Column(nullable = false)
@@ -52,6 +52,7 @@ public class Product {
         this.price = reqBody.price();
         this.inventory = reqBody.inventory();
         this.description = reqBody.description();
+        this.imageUrl = reqBody.imageUrl();
         this.category = reqBody.category();
     }
 
