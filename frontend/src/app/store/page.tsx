@@ -1,46 +1,32 @@
 import ClientPage from "./ClientPage";
-import { mockRsData } from "../../global/mockRsData";
+import client from "@/lib/backend/client";
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: {
-    keywordType?: "name" | "description";
-    keyword: string;
-    pageSize: number;
-    page: number;
-  };
-}) {
-  const {
-    keywordType = "name",
-    keyword = "",
-    pageSize = 10,
-    page = 1,
-  } = await searchParams;
+export default async function Page() {
+  const categories: Array<"HAND_DRIP" | "DECAF" | "TEA"> = [
+    "HAND_DRIP",
+    "DECAF",
+    "TEA",
+  ];
 
-  //가짜 rsdata, DB연동후 삭제 필요
-  const rsData = mockRsData;
-
-  //   const response = await client.GET("/items", {
-  //     params: {
-  //       query: {
-  //         keyword,
-  //         keywordType,
-  //         pageSize,
-  //         page,
-  //       },
-  //     },
-  //   });
-
-  //const rsData = response.data!!;
-
-  return (
-    <ClientPage
-      rsData={rsData}
-      pageSize={pageSize}
-      keyword={keyword}
-      keywordType={keywordType}
-      page={page}
-    />
+  const responses = await Promise.all(
+    categories.map((category) =>
+      client.GET("/GCcoffee/items", {
+        params: {
+          query: {
+            category,
+            pageSize: 10,
+            page: 0,
+            sort: "asc",
+          },
+        },
+      })
+    )
   );
+
+  const rows = categories.map((category, index) => ({
+    category,
+    items: responses[index].data?.data?.items ?? [],
+  }));
+
+  return <ClientPage rows={rows} />;
 }
