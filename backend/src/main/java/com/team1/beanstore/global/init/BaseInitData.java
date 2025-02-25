@@ -1,5 +1,7 @@
 package com.team1.beanstore.global.init;
 
+import com.team1.beanstore.domain.order.repository.OrderRepository;
+import com.team1.beanstore.domain.order.service.OrderService;
 import com.team1.beanstore.domain.product.ProductRepository;
 import com.team1.beanstore.domain.product.entity.Product;
 import com.team1.beanstore.domain.product.entity.ProductCategory;
@@ -12,6 +14,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.core.annotation.Order;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
+
 @Configuration
 @RequiredArgsConstructor
 public class BaseInitData {
@@ -21,12 +25,24 @@ public class BaseInitData {
     @Autowired
     @Lazy
     private BaseInitData self;
+    @Autowired
+    private OrderRepository orderRepository;
+    @Autowired
+    private OrderService orderService;
 
     @Bean
     @Order(1)
     public ApplicationRunner applicationRunner1() {
         return args -> {
             self.productInit();
+        };
+    }
+
+    @Bean
+    @Order(2)
+    public ApplicationRunner applicationRunner2() {
+        return args -> {
+            self.orderInit();
         };
     }
 
@@ -70,6 +86,25 @@ public class BaseInitData {
         }
 
         System.out.println("현재 저장된 상품 수: " + productRepository.count());
+    }
+
+    @Transactional
+    public void orderInit() {
+        if (orderRepository.count() > 0) {
+            return;
+        }
+
+        String email = "test%d@example.com";
+        String address = "aaa";
+        String zipCode = "bbb";
+
+
+        for (int i = 1; i <= 35; i++) {
+            Map<Long, Integer> productQuantities = Map.of((long) i, 1, (long) (i + 1), 1);
+            orderService.createOrder(email.formatted(i), address + i, zipCode + i, productQuantities);
+        }
+
+        System.out.println("현재 저장된 주문 수: " + orderRepository.count());
     }
 
 }
