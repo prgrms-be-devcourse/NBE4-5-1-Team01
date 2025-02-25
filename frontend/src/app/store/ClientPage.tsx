@@ -23,18 +23,30 @@ export default function ClientPage({
   }[];
 }) {
   const [cart, setCart] = useState<
-    { id: number; name: string; quantity: number }[]
+    { id: number; name: string; price: number; quantity: number }[]
   >([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [zipCode, setZipCode] = useState("");
-
+  const [totalPrice, setTotalPrice] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const safeSearchResults = searchResults ?? [];
   const [isSearching, setIsSearching] = useState(false);
   const scrollRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+
+  const openModal = (item: any) => {
+    setSelectedItem(item);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedItem(null);
+  };
 
   useEffect(() => {
     const storedCart = localStorage.getItem("cart");
@@ -53,21 +65,70 @@ export default function ClientPage({
     }
   }, [searchTerm]);
 
-  const addToCart = (itemId: number, itemName: string) => {
+  const addToCart = (itemId: number, itemName: string, itemPrice: number) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.id === itemId);
+      let newCart;
+
       if (existingItem) {
-        return prevCart.map((item) =>
+        newCart = prevCart.map((item) =>
           item.id === itemId ? { ...item, quantity: item.quantity + 1 } : item
         );
       } else {
-        return [...prevCart, { id: itemId, name: itemName, quantity: 1 }];
+        newCart = [
+          ...prevCart,
+          { id: itemId, name: itemName, price: itemPrice, quantity: 1 },
+        ];
       }
+
+      const newTotalPrice = newCart.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+      );
+      setTotalPrice(newTotalPrice);
+
+      return newCart;
     });
   };
 
   const removeFromCart = (itemId: number) => {
-    setCart((prevCart) => prevCart.filter((item) => item.id !== itemId));
+    setCart((prevCart) => {
+      const newCart = prevCart.filter((item) => item.id !== itemId);
+
+      // 총 가격 업데이트
+      const newTotalPrice = newCart.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+      );
+      setTotalPrice(newTotalPrice);
+
+      return newCart;
+    });
+  };
+
+  const updateCartQuantity = (itemId: number, newQuantity: number) => {
+    setCart((prevCart) =>
+      prevCart.map((item) =>
+        item.id === itemId ? { ...item, quantity: newQuantity } : item
+      )
+    );
+
+    // 총 가격 업데이트
+    const newTotalPrice = cart.reduce(
+      (sum, item) =>
+        sum + item.price * (item.id === itemId ? newQuantity : item.quantity),
+      0
+    );
+    setTotalPrice(newTotalPrice);
+  };
+
+  const getItemInventory = (itemId: number) => {
+    // 현재 장바구니에 있는 상품의 카테고리를 찾음
+    for (const row of rows) {
+      const item = row.items.find((i) => i.id === itemId);
+      if (item) return item.inventory;
+    }
+    return 1; // 기본적으로 최소 1개
   };
 
   const handleCheckout = async () => {
@@ -86,6 +147,21 @@ export default function ClientPage({
       return acc;
     }, {} as Record<number, number>);
 
+    for (const item of cart) {
+      const matchingItem = rows
+        .flatMap(({ items }) => items)
+        .find((product) => product.id === item.id);
+
+      if (!matchingItem || matchingItem.inventory < item.quantity) {
+        alert(
+          `${item.name}"의 재고가 부족합니다. (남은 재고: ${
+            matchingItem?.inventory ?? 0
+          }개)`
+        );
+        return;
+      }
+    }
+
     const orderData = { email, address, zipCode, productQuantities };
 
     try {
@@ -94,9 +170,21 @@ export default function ClientPage({
       });
 
       if (response?.data) {
-        alert(`주문 성공`);
+        alert("주문이 성공적으로 완료되었습니다!");
+
+        for (const item of cart) {
+          const matchingItem = rows
+            .flatMap(({ items }) => items)
+            .find((product) => product.id === item.id);
+
+          if (matchingItem) {
+            matchingItem.inventory -= item.quantity;
+          }
+        }
+
         setCart([]);
         localStorage.removeItem("cart");
+
         setEmail("");
         setAddress("");
         setZipCode("");
@@ -107,8 +195,6 @@ export default function ClientPage({
       alert("주문에 실패했습니다. 다시 시도해주세요.");
     }
   };
-
-  const toggleCart = () => setIsCartOpen((prev) => !prev);
 
   const handleSearch = async () => {
     if (!searchTerm.trim()) return;
@@ -161,7 +247,10 @@ export default function ClientPage({
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {safeSearchResults.map((item) => (
               <div key={item.id} className="border rounded-lg p-3 shadow-md">
-                <div className="block cursor-pointer">
+                <div
+                  className="block cursor-pointer"
+                  onClick={() => openModal(item)}
+                >
                   <img
                     src={item.imageUrl}
                     alt={item.name}
@@ -169,12 +258,12 @@ export default function ClientPage({
                   />
                   <h3 className="text-lg font-semibold mt-2">{item.name}</h3>
                   <p className="text-sm text-gray-700 font-bold">
-                    {item.price}원
+                    {item.price.toLocaleString()}원
                   </p>
                 </div>
                 <Button
                   className="mt-3 w-full"
-                  onClick={() => addToCart(item.id, item.name)}
+                  onClick={() => addToCart(item.id, item.name, item.price)}
                 >
                   장바구니 추가
                 </Button>
@@ -214,18 +303,25 @@ export default function ClientPage({
                     key={item.id}
                     className="border rounded-lg p-3 shadow-md min-w-[250px]"
                   >
-                    <img
-                      src={item.imageUrl}
-                      alt={item.name}
-                      className="w-full h-40 object-cover rounded-lg"
-                    />
-                    <h3 className="text-lg font-semibold mt-2">{item.name}</h3>
-                    <p className="text-sm text-gray-700 font-bold">
-                      {item.price}원
-                    </p>
+                    <div
+                      className="block cursor-pointer"
+                      onClick={() => openModal(item)}
+                    >
+                      <img
+                        src={item.imageUrl}
+                        alt={item.name}
+                        className="w-full h-40 object-cover rounded-lg"
+                      />
+                      <h3 className="text-lg font-semibold mt-2">
+                        {item.name}
+                      </h3>
+                      <p className="text-sm text-gray-700 font-bold">
+                        {item.price.toLocaleString()}원
+                      </p>
+                    </div>
                     <Button
                       className="mt-3 w-full"
-                      onClick={() => addToCart(item.id, item.name)}
+                      onClick={() => addToCart(item.id, item.name, item.price)}
                     >
                       장바구니 추가
                     </Button>
@@ -233,7 +329,6 @@ export default function ClientPage({
                 ))}
               </div>
 
-              {/* 오른쪽 화살표 */}
               <button
                 onClick={() =>
                   scrollRefs.current[index]?.scrollBy({
@@ -251,18 +346,19 @@ export default function ClientPage({
 
         <button
           className="fixed bottom-10 right-10 bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 transition-transform transform hover:scale-110"
-          onClick={toggleCart}
+          onClick={() => setIsCartOpen(true)}
         >
           <ShoppingCart size={24} />
         </button>
+
         {isCartOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-end">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-end z-40">
             <div className="w-80 bg-white h-full shadow-lg p-5 flex flex-col">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-bold">장바구니</h2>
                 <button
                   className="text-gray-500 hover:text-gray-800"
-                  onClick={toggleCart}
+                  onClick={() => setIsCartOpen(false)}
                 >
                   <X size={24} />
                 </button>
@@ -271,54 +367,132 @@ export default function ClientPage({
               {cart.length === 0 ? (
                 <p className="text-gray-600">장바구니가 비어 있습니다.</p>
               ) : (
-                <ul className="flex-1 overflow-y-auto">
-                  {cart.map((item) => (
-                    <li
-                      key={item.id}
-                      className="border-b py-2 flex justify-between items-center"
-                    >
-                      <span>
-                        {item.name} (수량: {item.quantity})
-                      </span>
-                      <Button
-                        className="text-white"
-                        onClick={() => removeFromCart(item.id)}
-                        size="sm"
-                      >
-                        제거
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              {cart.length > 0 && (
                 <>
-                  <Input
-                    type="email"
-                    placeholder="이메일 입력"
-                    className="w-full mb-2"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                  <Input
-                    type="text"
-                    placeholder="주소 입력"
-                    className="w-full mb-2"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                  />
-                  <Input
-                    type="text"
-                    placeholder="우편번호 입력"
-                    className="w-full mb-2"
-                    value={zipCode}
-                    onChange={(e) => setZipCode(e.target.value)}
-                  />
+                  <ul className="flex-1 overflow-y-auto">
+                    {cart.map((item) => (
+                      <li
+                        key={item.id}
+                        className="border-b py-2 flex justify-between items-center"
+                      >
+                        <span className="text-sm">{item.name}</span>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            className="p-2 text-sm"
+                            onClick={() =>
+                              updateCartQuantity(item.id, item.quantity - 1)
+                            }
+                            disabled={item.quantity <= 1}
+                          >
+                            -
+                          </Button>
 
-                  <Button onClick={handleCheckout}>결제하기</Button>
+                          <span className="w-6 text-center">
+                            {item.quantity}
+                          </span>
+                          <Button
+                            className="p-2 text-sm"
+                            onClick={() =>
+                              updateCartQuantity(item.id, item.quantity + 1)
+                            }
+                            disabled={
+                              item.quantity >= getItemInventory(item.id)
+                            }
+                          >
+                            +
+                          </Button>
+                          <Button
+                            className="p-2 text-sm text-white"
+                            onClick={() => removeFromCart(item.id)}
+                          >
+                            제거
+                          </Button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="text-lg font-semibold text-gray-800 mt-4">
+                    총 가격: {totalPrice.toLocaleString()}원
+                  </div>
+
+                  <div className="mt-4 space-y-2">
+                    <Input
+                      type="email"
+                      placeholder="이메일 입력"
+                      className="w-full"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <Input
+                      type="text"
+                      placeholder="주소 입력"
+                      className="w-full"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                    />
+                    <Input
+                      type="text"
+                      placeholder="우편번호 입력"
+                      className="w-full"
+                      value={zipCode}
+                      onChange={(e) => setZipCode(e.target.value)}
+                    />
+                  </div>
+                  <Button className="mt-4 w-full" onClick={handleCheckout}>
+                    결제하기
+                  </Button>
                 </>
               )}
+            </div>
+          </div>
+        )}
+
+        {isModalOpen && selectedItem && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold">{selectedItem.name}</h2>
+                <button
+                  className="text-gray-500 hover:text-gray-800"
+                  onClick={closeModal}
+                >
+                  <X size={24} />
+                </button>
+              </div>
+              <img
+                src={selectedItem.imageUrl}
+                alt={selectedItem.name}
+                className="w-full h-40 object-cover rounded-lg"
+              />
+
+              {/* 상세 정보 */}
+              <div className="mt-3 space-y-2">
+                <p className="text-gray-600">{selectedItem.description}</p>
+                <p className="text-lg font-semibold">
+                  가격: {selectedItem.price.toLocaleString()}원
+                </p>
+                <p className="text-sm text-gray-700">
+                  <span className="font-semibold">재고:</span>{" "}
+                  {selectedItem.inventory}개 남음
+                </p>
+                <p className="text-sm text-gray-700">
+                  <span className="font-semibold">카테고리:</span>{" "}
+                  {selectedItem.category}
+                </p>
+              </div>
+
+              <Button
+                className="mt-4 w-full"
+                onClick={() =>
+                  addToCart(
+                    selectedItem.id,
+                    selectedItem.name,
+                    selectedItem.price
+                  )
+                }
+              >
+                장바구니 추가
+              </Button>
             </div>
           </div>
         )}
