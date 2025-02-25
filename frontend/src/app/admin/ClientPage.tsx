@@ -9,24 +9,26 @@ import client from "@/lib/backend/client";
 
 export default function ClientPage({
   isLogin,
-  rsData = { 
-    data: { 
-      totalPages: 0, 
-      curPageNo: 1, 
-      items: [] 
-  }},
+  rsData = {
+    data: {
+      totalPages: 0,
+      curPageNo: 1,
+      items: [],
+    },
+  },
   keywordType,
   keyword,
   pageSize,
   page,
 }: {
   isLogin: boolean;
-  rsData?: { 
-    data: { 
-      totalPages: number; 
-      curPageNo: number; 
-      items: any[] 
-  }};
+  rsData?: {
+    data: {
+      totalPages: number;
+      curPageNo: number;
+      items: any[];
+    };
+  };
   keywordType?: "name" | "description" | "category";
   keyword?: string;
   pageSize?: number;
@@ -92,7 +94,11 @@ export default function ClientPage({
     } else if (isCategory) {
       // "category"에서 다른 값으로 변경될 때만 실행되도록 함
       setCurrentKeyword((prevKeyword) => {
-        return prevKeyword === "HAND_DRIP" || prevKeyword === "DECAF" || prevKeyword === "TEA" ? "" : prevKeyword;
+        return prevKeyword === "HAND_DRIP" ||
+          prevKeyword === "DECAF" ||
+          prevKeyword === "TEA"
+          ? ""
+          : prevKeyword;
       });
       setIsCategory(false);
     }
@@ -124,9 +130,9 @@ export default function ClientPage({
     fetchProductItems();
 
     // URL 업데이트
-      router.push(
-        `/admin?keywordType=${currentKeywordType}&keyword=${currentKeyword}&pageSize=${currentPageSize}`
-      );
+    router.push(
+      `/admin?keywordType=${currentKeywordType}&keyword=${currentKeyword}&pageSize=${currentPageSize}`
+    );
   };
 
   // 상품 목록 가져오기
@@ -211,7 +217,7 @@ export default function ClientPage({
       setLoading(true);
       setError("");
 
-      const response = await client.DELETE("/GCcoffee/admin/delete/{id}", {
+      const response = await client.DELETE("/GCcoffee/admin/item/{id}", {
         credentials: "include",
         params: {
           path: {
@@ -221,10 +227,10 @@ export default function ClientPage({
       });
 
       if (response.error) {
-        throw new Error("상품품 삭제에 실패했습니다.");
+        throw new Error("상품 삭제에 실패했습니다.");
       }
 
-      alert("상품품이 삭제되었습니다.");
+      alert("상품이 삭제되었습니다.");
       closeModal();
       router.refresh();
     } catch (err: any) {
@@ -236,7 +242,14 @@ export default function ClientPage({
 
   // 상품 수정 핸들러
   const handleUpdateItem = async (id: number) => {
-    if (!selectedItem.name || !selectedItem.description || !tempImageUrl || !selectedItem.category || selectedItem.price < 1) return;
+    if (
+      !selectedItem.name ||
+      !selectedItem.description ||
+      !tempImageUrl ||
+      !selectedItem.category ||
+      selectedItem.price < 1
+    )
+      return;
     const updatedItem = {
       ...selectedItem,
       imageUrl: tempImageUrl,
@@ -269,7 +282,7 @@ export default function ClientPage({
         router.refresh();
         closeModal();
       }
-  } catch (e: any) {
+    } catch (e: any) {
       setError(e.message);
     } finally {
       setLoading(false);
@@ -282,7 +295,7 @@ export default function ClientPage({
         <h1 className="text-2xl font-bold mb-4">상품 목록</h1>
         <form onSubmit={handleSearchSubmit} className="mb-5">
           <div className="flex gap-3 items-center">
-          <select
+            <select
               name="pageSize"
               className="border p-2 rounded"
               onChange={handleChange}
@@ -303,26 +316,34 @@ export default function ClientPage({
               <option value="name">상품 이름</option>
               <option value="description">내용</option>
               <option value="category">카테고리</option>
-            </select>            
-            {currentKeywordType !== "category" ? <Input
-              type="text"
-              placeholder="검색어 입력"
-              name="keyword"
-              value={currentKeyword}
-              onChange={(e) => {
-                setCurrentKeyword(e.target.value)
-              }}
-              className="w-[200px]"
-            /> : <select
-            name="searchKeywordType"
-            value={currentKeyword}
-            onChange={(e) => setCurrentKeyword(e.target.value as "HAND_DRIP" | "DECAF" | "TEA")}
-            className="border p-2 rounded"
-          >
-            <option value="HAND_DRIP">핸드 드립</option>
-            <option value="DECAF">디카페인</option>
-            <option value="TEA">티</option>
-          </select>}
+            </select>
+            {currentKeywordType !== "category" ? (
+              <Input
+                type="text"
+                placeholder="검색어 입력"
+                name="keyword"
+                value={currentKeyword}
+                onChange={(e) => {
+                  setCurrentKeyword(e.target.value);
+                }}
+                className="w-[200px]"
+              />
+            ) : (
+              <select
+                name="searchKeywordType"
+                value={currentKeyword}
+                onChange={(e) =>
+                  setCurrentKeyword(
+                    e.target.value as "HAND_DRIP" | "DECAF" | "TEA"
+                  )
+                }
+                className="border p-2 rounded"
+              >
+                <option value="HAND_DRIP">핸드 드립</option>
+                <option value="DECAF">디카페인</option>
+                <option value="TEA">티</option>
+              </select>
+            )}
             <Button type="submit">검색</Button>
           </div>
         </form>
@@ -330,34 +351,43 @@ export default function ClientPage({
         {loading && <p className="text-blue-500">불러오는 중...</p>}
         {error && <p className="text-red-500">{error}</p>}
 
-        {!loading && <ul className="space-y-4">
-          {items.map((item: any) => (
-            <li key={item.id} className="border rounded-lg p-4 shadow-md">
-              <div
-                className="flex items-center cursor-pointer"
-                onClick={() => openModal(item)}
-              >
-                <img
-                  src={item.imageUrl}
-                  alt={item.name}
-                  className="w-24 h-24 object-cover rounded-lg mr-4"
-                />
-                <div>
-                  <h3 className="text-lg font-semibold">{item.name}</h3>
-                  <p className="text-sm text-gray-500">
-                    재고: {item.inventory}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    상품 정보: {`${item.description}`}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    카테고리: {`${item.category === "HAND_DRIP" ? "핸드 드립" : item.category === "DECAF" ? "디카페인" : "티"}`}
-                  </p>
+        {!loading && (
+          <ul className="space-y-4">
+            {items.map((item: any) => (
+              <li key={item.id} className="border rounded-lg p-4 shadow-md">
+                <div
+                  className="flex items-center cursor-pointer"
+                  onClick={() => openModal(item)}
+                >
+                  <img
+                    src={item.imageUrl}
+                    alt={item.name}
+                    className="w-24 h-24 object-cover rounded-lg mr-4"
+                  />
+                  <div>
+                    <h3 className="text-lg font-semibold">{item.name}</h3>
+                    <p className="text-sm text-gray-500">
+                      재고: {item.inventory}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      상품 정보: {`${item.description}`}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      카테고리:{" "}
+                      {`${
+                        item.category === "HAND_DRIP"
+                          ? "핸드 드립"
+                          : item.category === "DECAF"
+                          ? "디카페인"
+                          : "티"
+                      }`}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </li>
-          ))}
-        </ul>}
+              </li>
+            ))}
+          </ul>
+        )}
         <div className="flex justify-center mt-4 space-x-2">
           {Array.from({ length: totalPages }, (_, index) => index + 1).map(
             (pageNum) => (
@@ -377,14 +407,14 @@ export default function ClientPage({
       </div>
 
       {isModalOpen && selectedItem && (
-        <div 
+        <div
           className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
           onClick={closeModal}
         >
-          <div 
+          <div
             className="bg-white p-5 rounded-lg shadow-lg w-1/2"
             onClick={(e) => e.stopPropagation()}
-            >
+          >
             <h2 className="text-xl font-bold mb-4">상품 수정</h2>
             <img
               src={selectedItem.imageUrl}
@@ -405,7 +435,10 @@ export default function ClientPage({
               type="number"
               value={selectedItem.price === 0 ? "" : selectedItem.price}
               onChange={(e) =>
-                setSelectedItem({ ...selectedItem, price: parseFloat(e.target.value) || 0 })
+                setSelectedItem({
+                  ...selectedItem,
+                  price: parseFloat(e.target.value) || 0,
+                })
               }
               className="mb-2"
             />
@@ -413,7 +446,7 @@ export default function ClientPage({
             <Input
               type="text"
               value={tempImageUrl}
-              onChange={(e) => setTempImageUrl(e.target.value )}
+              onChange={(e) => setTempImageUrl(e.target.value)}
               className="mb-2"
             />
             <label className="block text-sm font-semibold">재고</label>
@@ -421,7 +454,10 @@ export default function ClientPage({
               type="number"
               value={selectedItem.inventory === 0 ? "" : selectedItem.inventory}
               onChange={(e) =>
-                setSelectedItem({ ...selectedItem, inventory: parseFloat(e.target.value) || 0 })
+                setSelectedItem({
+                  ...selectedItem,
+                  inventory: parseFloat(e.target.value) || 0,
+                })
               }
               className="mb-2"
             />
@@ -449,10 +485,10 @@ export default function ClientPage({
               }
               className="border p-2 rounded"
             >
-            <option value="HAND_DRIP">핸드 드립</option>
-            <option value="DECAF">디카페인</option>
-            <option value="TEA">티</option>
-          </select>
+              <option value="HAND_DRIP">핸드 드립</option>
+              <option value="DECAF">디카페인</option>
+              <option value="TEA">티</option>
+            </select>
             <div className="mt-4 flex gap-3">
               <Button
                 onClick={() => handleUpdateItem(selectedItem.id)}
