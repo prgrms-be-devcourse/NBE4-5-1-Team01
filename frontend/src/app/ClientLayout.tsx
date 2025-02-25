@@ -51,9 +51,6 @@ export default function ClinetLayout({
             <DropdownMenuContent>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
-                <Link href="/">초기 화면</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
                 <Link href="/store">구매자 페이지</Link>
               </DropdownMenuItem>
 
