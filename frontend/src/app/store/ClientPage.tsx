@@ -241,6 +241,11 @@ export default function ClientPage({
               검색
             </Button>
           </div>
+
+          {/* 고객 안내 문구 추가 */}
+          <p className="text-sm text-gray-600 mt-2">
+            당일 오후 2시 이후의 주문은 다음날 배송을 시작합니다.
+          </p>
         </div>
 
         {safeSearchResults.length > 0 ? (
