@@ -248,13 +248,15 @@ export default function ClientPage({
         </ul>
 
         {/* 페이지 이동 */}
-        <div className="flex gap-3">
+        <div className="flex justify-center mt-4 space-x-2">
           {Array.from({ length: pageDto.totalPages }, (_, i) => i + 1).map(
             (pageNo) => {
               return (
                 <Link
                   key={pageNo}
-                  className={pageNo == page ? `text-red-500` : `text-blue-500`}
+                  className={`px-2 py-1 transition-colors duration-300 ${
+                    pageNo == page ? "text-gray-500" : "text-blue-500"
+                  }`}
                   href={`/admin/order?&keyword=${keyword}&pageSize=${pageSize}&page=${pageNo}&sort=${sort}`}
                 >
                   {pageNo}
@@ -290,22 +292,24 @@ export default function ClientPage({
 
                   {/* 주문 상품 리스트 */}
                   <h3 className="text-lg font-semibold mt-4">상품 목록</h3>
-                  {selectedItem.items?.length > 0 ? (
-                    <ul className="mt-2 border-t pt-2 space-y-2">
-                      {selectedItem.items.map((item: any, index: number) => (
-                        <li
-                          key={index}
-                          className="border p-2 rounded shadow-sm"
-                        >
-                          <p>상품명: {item.productName}</p>
-                          <p>수량: {item.quantity}개</p>
-                          <p>가격: {item.totalPrice}원</p>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-gray-500">상품 정보가 없습니다.</p>
-                  )}
+                  <div className="mt-2 border-t pt-2 space-y-2 max-h-80 overflow-y-auto">
+                    {selectedItem.items?.length > 0 ? (
+                      <ul>
+                        {selectedItem.items.map((item: any, index: number) => (
+                          <li
+                            key={index}
+                            className="border p-2 rounded shadow-sm"
+                          >
+                            <p>상품명: {item.productName}</p>
+                            <p>수량: {item.quantity}개</p>
+                            <p>가격: {item.totalPrice}원</p>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-gray-500">상품 정보가 없습니다.</p>
+                    )}
+                  </div>
                 </div>
               )}
 
