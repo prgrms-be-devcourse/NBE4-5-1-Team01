@@ -5,13 +5,82 @@
 - **`한줄 소개` :** Spring을 이용해 커피 메뉴 데이터를 관리하는 4가지 로직 CRUD(Create, Read, Update, Delete)를 구현하는 프로젝트
 - **`컨벤션` :** <a href="https://github.com/prgrms-be-devcourse/NBE4-5-1-Team01/wiki/%EA%B9%83-%EC%BB%A8%EB%B0%B4%EC%85%98" target="_blank">🔖 Wiki</a>
 
+--- 
+
 ##  Team
 
 | 이태경<br>(팀장) | 소진영<br> | 이은준<br> | 김아성<br> | 김진명<br> | 
 | :---: | :---: | :---: | :---:| :---: |
 |<a href="https://github.com/dlfjsld1">GitHub</a>|<a href="https://github.com/Jinyoung0718">GitHub</a>|<a href="https://github.com/linedj">GitHub</a>|<a href="https://github.com/asungkim">GitHub</a>|<a href="https://github.com/jin214930">GitHub</a>|
 
+---
 
+## 🚀 **설치 가이드 (Installation Guide)**
+### 📌 **1. 프로젝트 클론**
+* 먼저 프로젝트를 로컬 환경으로 가져옵니다.
+```shell
+git clone https://github.com/prgrms-be-devcourse/NBE4-5-1-Team01.git [프로젝트 명]
+```
+### 📌 2. Backend (Spring Boot) 설정
+
+#### ✅ 2-1. Java & Gradle 환경 설정
+- Java 23 설치 확인
+- Gradle 설치 확인
+
+#### ✅ 2-2. IntelliJ 설정
+- IntelliJ에서 backend 폴더를 엽니다.
+    - File > Project Structure > SDK에서 Java 23 설정
+    - File > Settings > Build, Execution, Deployment > Build Tools > Gradle 설정
+
+#### ✅ 2-3. Docker 및 MySql 설정
+- Docker에서 MySql 컨테이너 실행 및 beanstore 자동 생성
+```shell
+cd ~ # 운영환경에서는 `cd /`
+
+# 설정파일 만들기
+mkdir -p dockerProjects/mysql-1/volumes/etc/mysql/conf.d
+mkdir -p dockerProjects/mysql-1/volumes/init
+
+# MySQL 설정파일 생성
+chmod 644 dockerProjects/mysql-1/volumes/etc/mysql/conf.d/my.cnf 2>/dev/null
+echo "[mysqld]
+# general_log = ON
+# general_log_file = /etc/mysql/conf.d/general.log" > dockerProjects/mysql-1/volumes/etc/mysql/conf.d/my.cnf
+chmod 444 dockerProjects/mysql-1/volumes/etc/mysql/conf.d/my.cnf
+
+# 초기 실행 스크립트 작성 (beanstore DB 자동 생성)
+echo "CREATE DATABASE IF NOT EXISTS beanstore;" > dockerProjects/mysql-1/volumes/init/init.sql
+
+# MySQL 컨테이너 실행 (beanstore DB 자동 생성 포함)
+docker run \
+    --name mysql-1 \
+    -p 3306:3306 \
+    -v /${PWD}/dockerProjects/mysql-1/volumes/var/lib/mysql:/var/lib/mysql \
+    -v /${PWD}/dockerProjects/mysql-1/volumes/etc/mysql/conf.d:/etc/mysql/conf.d \
+    -v /${PWD}/dockerProjects/mysql-1/volumes/init:/docker-entrypoint-initdb.d \
+    -e TZ=Asia/Seoul \
+    -e MYSQL_ROOT_PASSWORD=lldj123414 \
+    -d \
+    mysql:8.4.1
+```
+
+#### ✅ 2-4. Spring Boot 실행
+-  인텔리제이에서 BeanstoreApplication 파일 실행
+
+
+### 📌 3. Front End (Next.js) 설정
+#### 1. Visual Studio Code 로 frontend 폴더 실행
+#### 2. npm install 
+```shell
+npm install
+```
+#### 3. Next.js 실행
+```shell
+npm run dev
+```
+
+
+---
 
 ## Stack
 ### <span> ⚙️ **Tools** </span>
