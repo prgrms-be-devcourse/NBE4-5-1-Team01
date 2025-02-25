@@ -279,7 +279,7 @@ export default function ClientPage({
           rows.map(({ category, items }, index) => (
             <div key={category} className="mb-10 relative">
               <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-                {category}
+                {category === "HAND_DRIP" ? "Hand Drip" : category === "DECAF" ? "Decaf" : "Tea"}
               </h2>
               <button
                 onClick={() =>
@@ -467,7 +467,7 @@ export default function ClientPage({
               <img
                 src={selectedItem.imageUrl}
                 alt={selectedItem.name}
-                className="w-full h-40 object-cover rounded-lg"
+                className="w-full max-h-[60vh] object-cover object-cover rounded-lg"
               />
 
               {/* 상세 정보 */}
@@ -482,7 +482,8 @@ export default function ClientPage({
                 </p>
                 <p className="text-sm text-gray-700">
                   <span className="font-semibold">카테고리:</span>{" "}
-                  {selectedItem.category}
+                    {selectedItem.category === "HAND_DRIP" ? "핸드 드립" : selectedItem.category === "DECAF" ? "디카페인" : "티"}
+
                 </p>
               </div>
 

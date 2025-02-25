@@ -411,15 +411,15 @@ export default function ClientPage({
           className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
           onClick={closeModal}
         >
-          <div
-            className="bg-white p-5 rounded-lg shadow-lg w-1/2"
+          <div 
+            className="bg-white p-5 rounded-lg shadow-lg w-[500px] max-w-[90%] max-h-[90vh] overflow-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-xl font-bold mb-4">상품 수정</h2>
             <img
               src={selectedItem.imageUrl}
               alt={selectedItem.name}
-              className="w-full h-40 object-cover rounded-lg mb-4"
+              className="w-full max-h-[60vh] object-cover rounded-lg mb-4"
             />
             <label className="block text-sm font-semibold">이름</label>
             <Input
