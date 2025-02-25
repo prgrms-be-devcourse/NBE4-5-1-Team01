@@ -137,6 +137,11 @@ export default function ClientPage({
       return;
     }
 
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      alert("이메일 형식이 올바르지 않습니다.");
+      return;
+    }
+
     if (cart.length === 0) {
       alert("장바구니가 비어 있습니다.");
       return;
