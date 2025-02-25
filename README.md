@@ -1,38 +1,46 @@
-# NBE4-5-1-Team01  
-프로그래머스 백엔드 데브코스 4기 5회차 1차 1팀 프로젝트  
+#  NBE4-5-1-Team01
+- **`팀 명` :** 커피한잔할까요
+- **`프로젝트 명` :** Grids&Circles
+- **`프로젝트 기간` :** 2025.02.19 - 2025.02.26
+- **`한줄 소개` :** Spring을 이용해 커피 메뉴 데이터를 관리하는 4가지 로직 CRUD(Create, Read, Update, Delete)를 구현하는 프로젝트
+- **`컨벤션` :** <a href="위키 링크 추가해주세요" target="_blank">🔖 Wiki</a>
 
-프로젝트 기간 (2/19~2/26 | 2/27 발표)
-매일 5시 30분 프로젝트 회의 진행
-회의때 진행한 이슈 보고 및 도움 여부, 다음 이슈 지정
+##  Team
 
--칸반 보드 활용  
-태스크에서 자신이 맡은 이슈를 생성
-담당자와 진행 상태(To Do, In Progress, Done)를 명확히 표시
+| 이태경<br>(팀장) | 소진영<br> | 이은준<br> | 김아성<br> | 김진명<br> | 
+| :---: | :---: | :---: | :---:| :---: |
+|<a href="https://github.com/dlfjsld1">GitHub</a>|<a href="https://github.com/Jinyoung0718">GitHub</a>|<a href="https://github.com/linedj">GitHub</a>|<a href="https://github.com/asungkim">GitHub</a>|<a href="https://github.com/jin214930">GitHub</a>|
 
--GitHub Flow  
-기본적으로 main 브랜치를 기준으로 진행  
-기능 개발 시에는 커밋규칙/기능명 브랜치를 만들어 작업 후, Pull Request를 통해 Merge/Rebase  
 
-<예시>  
-최신 원격 저장소에서 pull 받아 브랜치에서 기능 개발 후  
-git add. && git commit -m "코멘트"  
-git pull origin main --rebase  
-(충돌시 해결 후 git add. && git commit -m "코멘트")  
-git push origin 브랜치명  
-깃허브에서 Compare&Pull Request 생성  
-description에 설명 추가  
-create pull request 클릭  
 
-*병합시에는 squash merge로 한다*  
+## Stack
+### <span> ⚙️ **Tools** </span>
+| Github | Figma | Notion |
+| :---: | :---: |:---:|
+| <img alt="github logo" src="https://techstack-generator.vercel.app/github-icon.svg" width="65" height="65"> | [![My Skills](https://skillicons.dev/icons?i=figma)](https://skillicons.dev) |<img alt="Notion logo" src="https://www.notion.so/cdn-cgi/image/format=auto,width=640,quality=100/front-static/shared/icons/notion-app-icon-3d.png" height="65" width="65">|
 
-각자 로컬에서 충분히 테스트(유닛테스트 및 통합테스트) 후 Merge/Rebase 진행  
-Merge/Rebase 후에는 main 브랜치가 정상 구동되는지 꼭 확인  
+<br />
 
--커밋 메시지 규칙  
-enhancement: 새로운 기능 추가  
-bug: 버그 수정  
-refactor: 리팩토링  
-test: 테스트 코드 추가/보완  
-document: 문서 수정  
+### <span> 🖥 **Front-end** </span>
+| Html | CSS | JavaScript | NextJS | React | TailWind |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| <div>[![My Skills](https://skillicons.dev/icons?i=html)](https://skillicons.dev) </div> | <div>[![My Skills](https://skillicons.dev/icons?i=css)](https://skillicons.dev) </div> | <div>[![My Skills](https://skillicons.dev/icons?i=javascript)](https://skillicons.dev) </div> | <div>[![My Skills](https://skillicons.dev/icons?i=nextjs)](https://skillicons.dev) </div> | <div>[![My Skills](https://skillicons.dev/icons?i=react)](https://skillicons.dev) </div> | [![My Skills](https://skillicons.dev/icons?i=tailwind)](https://skillicons.dev)
 
-짧고 명확하게 작성
+<br />
+
+### <span>🔒 **Back-end** </span>
+| Java | mySQL | Spring | Spring<br>Boot | JWT|Spring<br/>Security | RestAPI |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| <div style="display: flex; align-items: flex-start;"><img src="https://techstack-generator.vercel.app/java-icon.svg" alt="icon" width="65" height="65" /></div> | <div style="display: flex; align-items: flex-start;"><img src="https://techstack-generator.vercel.app/mysql-icon.svg" alt="icon" width="65" height="65" /></div> | <img alt="spring logo" src="https://www.vectorlogo.zone/logos/springio/springio-icon.svg" height="50" width="50" > | <img alt="spring-boot logo" src="https://t1.daumcdn.net/cfile/tistory/27034D4F58E660F616" width="65" height="65" > | <img alt="spring-boot logo" src="https://play-lh.googleusercontent.com/3C-hB-KWoyWzZjUnRsXUPu-bqB3HUHARMLjUe9OmPoHa6dQdtJNW30VrvwQ1m7Pln3A" width="65" height="65" >| <img alt="spring-boot logo" src="https://blog.kakaocdn.net/dn/dIQDQP/btqZ09ESd8T/0ibqtotW52OaJS8HznXDQK/img.png" width="65" height="65" > |  <div style="display: flex; align-items: flex-start;"><img src="https://techstack-generator.vercel.app/restapi-icon.svg" alt="icon" width="65" height="65" /></div> | 
+
+<br />
+
+## 🔖 Project Specification
+
+<ul>
+<li><a href="https://www.notion.so/Team-011663550b7b55809b84d3d2c39423fe42">Team Notion Page</a></li>
+<li><a href="https://www.figma.com/design/FGVx6IgumxGuYKq3ZlAPeb/DEV_1st_TEAM1?node-id=0-1&t=jHC9UDmAD8KZaQ50-1">기획서 - Figma</a></li>
+<li><a href="https://www.notion.so/19f3550b7b558088b067c017e4b7d7e1">기획서 - 노션</a></li>
+</ul>
+
+<br />
