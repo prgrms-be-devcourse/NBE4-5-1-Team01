@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -79,9 +78,9 @@ public class AdminProductController {
     }
 
     @Operation(summary = "상품 삭제", description = "상품을 삭제합니다.")
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/item/{id}")
     public RsData<Map<String, Long>> deleteItem(@PathVariable Long id) {
-        Map<String, Long> response =  productService.deleteItem(id);
+        Map<String, Long> response = productService.deleteItem(id);
 
         return new RsData<>(
                 "200-1",

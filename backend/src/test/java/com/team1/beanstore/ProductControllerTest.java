@@ -234,7 +234,7 @@ class ProductControllerTest {
     private ResultActions deleteRequest(long postId) throws Exception {
         return mockMvc
                 .perform(
-                        delete("/GCcoffee/admin/delete/%d".formatted(postId))
+                        delete("/GCcoffee/admin/item/%d".formatted(postId))
                                 .header("Authorization", "Bearer " + token)
                 )
                 .andDo(print());
@@ -402,7 +402,6 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.code").value("400-1"))
                 .andExpect(jsonPath("$.msg").value("잘못된 검색타입: CLOTHES"));
     }
-
 
 
     @Test
