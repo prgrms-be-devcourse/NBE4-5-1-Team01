@@ -8,11 +8,8 @@ export default async function Page() {
     "TEA",
   ];
 
-  console.log("📌 요청할 카테고리 목록:", categories);
-
   const responses = await Promise.all(
     categories.map((category) => {
-      console.log(`🔍 ${category} 카테고리 아이템 요청 중...`);
       return client.GET("/GCcoffee/items", {
         params: {
           query: {
@@ -26,15 +23,8 @@ export default async function Page() {
     })
   );
 
-  console.log("✅ 응답 받은 데이터 (원본):", responses);
-
   const rows = categories.map((category, index) => {
     const responseData = responses[index]?.data;
-
-    console.log(
-      `${category} 카테고리 데이터 처리 중...`,
-      JSON.stringify(responseData, null, 2)
-    );
 
     return {
       category,

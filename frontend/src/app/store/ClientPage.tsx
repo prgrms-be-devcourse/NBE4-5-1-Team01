@@ -65,6 +65,8 @@ export default function ClientPage({
     }
   }, [searchTerm]);
 
+  const validateEmail = () => !(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+
   const addToCart = (itemId: number, itemName: string, itemPrice: number) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.id === itemId);
@@ -134,6 +136,11 @@ export default function ClientPage({
   const handleCheckout = async () => {
     if (!email || !address || !zipCode) {
       alert("이메일, 주소, 우편번호를 입력해주세요.");
+      return;
+    }
+
+    if(!validateEmail()) {
+      alert("이메일 형식이 올바르지 않습니다.");
       return;
     }
 
