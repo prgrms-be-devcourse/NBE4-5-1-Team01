@@ -3,7 +3,7 @@
 - **`프로젝트 명` :** Grids&Circles
 - **`프로젝트 기간` :** 2025.02.19 - 2025.02.26
 - **`한줄 소개` :** Spring을 이용해 커피 메뉴 데이터를 관리하는 4가지 로직 CRUD(Create, Read, Update, Delete)를 구현하는 프로젝트
-- **`컨벤션` :** <a href="https://github.com/prgrms-be-devcourse/NBE4-5-1-Team01/wiki" target="_blank">🔖 Wiki</a>
+- **`컨벤션` :** <a href="https://github.com/prgrms-be-devcourse/NBE4-5-1-Team01/wiki/%EA%B9%83-%EC%BB%A8%EB%B0%B4%EC%85%98" target="_blank">🔖 Wiki</a>
 
 ##  Team
 
